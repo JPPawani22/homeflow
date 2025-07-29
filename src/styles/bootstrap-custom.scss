@@ -1,0 +1,254 @@
+// Custom Bootstrap SCSS for HomeFlow
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+
+// Custom color variables
+$primary: #b663f1;
+$secondary: #64748b;
+$success: #10b981;
+$info: #4406d4;
+$warning: #f59e0b;
+$danger: #ef4444;
+$light: #f8fafc;
+$dark: #1e293b;
+
+// Custom spacing
+$spacer: 1rem;
+$spacers: (
+  0: 0,
+  1: $spacer * 0.25,
+  2: $spacer * 0.5,
+  3: $spacer,
+  4: $spacer * 1.5,
+  5: $spacer * 3,
+  6: $spacer * 4,
+);
+
+// Import Bootstrap
+@import "~bootstrap/scss/bootstrap";
+
+// Custom styles for HomeFlow
+.homeflow-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.priority-high {
+  border-left: 4px solid $danger;
+}
+
+.priority-medium {
+  border-left: 4px solid $warning;
+}
+
+.priority-low {
+  border-left: 4px solid $success;
+}
+
+.sidebar {
+  background: linear-gradient(135deg, $primary 0%, darken($primary, 10%) 100%);
+  min-height: 100vh;
+}
+
+.main-content {
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.auth-container {
+  background: linear-gradient(135deg, $primary 0%, $info 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.calendar-day {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: rgba($primary, 0.1);
+  }
+  
+  &.has-events {
+    background-color: rgba($primary, 0.2);
+    font-weight: 600;
+  }
+}
+
+.expense-item {
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: $primary;
+  }
+}
+
+.budget-progress {
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+// Todo-specific styles
+.todo-item {
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0 !important;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  &.priority-high {
+    border-left: 4px solid $danger !important;
+  }
+  
+  &.priority-medium {
+    border-left: 4px solid $warning !important;
+  }
+  
+  &.priority-low {
+    border-left: 4px solid $success !important;
+  }
+}
+
+.todo-list {
+  .todo-item {
+    &:hover .drag-handle {
+      opacity: 1;
+    }
+  }
+}
+
+.drag-handle {
+  opacity: 0.3;
+  transition: opacity 0.2s ease;
+  
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// Drag and drop states
+.todo-item[draggable="true"] {
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.todo-item.dragging {
+  opacity: 0.5;
+  transform: rotate(5deg);
+}
+
+.todo-item.drag-over {
+  border-top: 3px solid $primary;
+}
+
+// Form enhancements
+.todo-form {
+  .form-control:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
+  }
+}
+
+// Filter buttons
+.btn-group .btn {
+  .badge {
+    font-size: 0.7em;
+  }
+}
+
+// Progress bar enhancements
+.progress {
+  background-color: rgba($primary, 0.1);
+  
+  .progress-bar {
+    transition: width 0.6s ease;
+  }
+}
+
+// Stats cards
+.homeflow-card.border-primary {
+  border-color: rgba($primary, 0.3) !important;
+}
+
+.homeflow-card.border-warning {
+  border-color: rgba($warning, 0.3) !important;
+}
+
+.homeflow-card.border-success {
+  border-color: rgba($success, 0.3) !important;
+}
+
+.homeflow-card.border-danger {
+  border-color: rgba($danger, 0.3) !important;
+}
+
+// Responsive improvements
+@media (max-width: 768px) {
+  .todo-item {
+    .d-flex {
+      flex-direction: column;
+      align-items: flex-start !important;
+    }
+    
+    .drag-handle {
+      display: none;
+    }
+  }
+  
+  .btn-group {
+    flex-direction: column;
+    
+    .btn {
+      border-radius: 0.375rem !important;
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+// Animation for completed todos
+.todo-item .form-check-input:checked ~ div {
+  animation: completeTask 0.3s ease-in-out;
+}
+
+@keyframes completeTask {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+// Overdue indicator
+.badge.bg-danger {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
