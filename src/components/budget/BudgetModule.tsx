@@ -9,6 +9,12 @@ import BudgetOverview from "./BudgetOverview"
 import ExpenseCharts from "./ExpenseCharts"
 import BudgetSettings from "./BudgetSettings"
 
+// Add mobile imports at the top
+import MobileStatsGrid from "@/components/mobile/MobileStatsGrid"
+import MobileExpenseItem from "@/components/mobile/MobileExpenseItem"
+import MobileBottomSheet from "@/components/mobile/MobileBottomSheet"
+import { formatCurrency } from "@/lib/utils"
+
 interface BudgetModuleProps {
   compact?: boolean
 }
@@ -143,20 +149,52 @@ export default function BudgetModule({ compact = false }: BudgetModuleProps) {
 
   if (compact) {
     return (
-      <BudgetOverview
-        budget={budgetData.budget}
-        expenses={budgetData.expenses}
-        compact={true}
-        onMonthChange={setSelectedMonth}
-        selectedMonth={selectedMonth}
-      />
+      <div>
+        {/* Mobile Stats Grid */}
+        <div className="d-mobile-only">
+          <MobileStatsGrid
+            stats={[
+              {
+                label: "Budget",
+                value: formatCurrency(budgetData.budget.monthly_budget),
+                color: "primary",
+                icon: "bi-wallet2",
+              },
+              {
+                label: "Spent",
+                value: formatCurrency(budgetData.budget.current_month_spent),
+                color: "danger",
+                icon: "bi-credit-card",
+              },
+              {
+                label: budgetData.budget.remaining >= 0 ? "Remaining" : "Over",
+                value: formatCurrency(Math.abs(budgetData.budget.remaining)),
+                color: budgetData.budget.remaining >= 0 ? "success" : "warning",
+                icon: budgetData.budget.remaining >= 0 ? "bi-piggy-bank" : "bi-exclamation-triangle",
+              },
+              { label: "Transactions", value: budgetData.expenses.length, color: "info", icon: "bi-receipt" },
+            ]}
+          />
+        </div>
+
+        {/* Desktop compact view */}
+        <div className="d-mobile-none">
+          <BudgetOverview
+            budget={budgetData.budget}
+            expenses={budgetData.expenses}
+            compact={true}
+            onMonthChange={setSelectedMonth}
+            selectedMonth={selectedMonth}
+          />
+        </div>
+      </div>
     )
   }
 
   return (
     <div>
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      {/* Header - Desktop */}
+      <div className="d-flex justify-content-between align-items-center mb-4 d-mobile-none">
         <div>
           <h3>Budget & Expenses</h3>
           <p className="text-muted mb-0">
@@ -179,17 +217,46 @@ export default function BudgetModule({ compact = false }: BudgetModuleProps) {
         </div>
       </div>
 
-      {/* Expense Form Modal */}
-      {showExpenseForm && (
+      {/* Mobile Header */}
+      <div className="d-mobile-only mb-3">
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <input
+            type="month"
+            className="form-control"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            style={{ maxWidth: "200px" }}
+          />
+        </div>
+      </div>
+
+      {/* Mobile FAB */}
+      <button className="mobile-fab d-mobile-only" onClick={() => setShowExpenseForm(true)}>
+        <i className="bi bi-plus"></i>
+      </button>
+
+      {/* Expense Form - Desktop */}
+      <div className="d-mobile-none">
+        {showExpenseForm && (
+          <ExpenseForm
+            onSubmit={createExpense}
+            onCancel={() => setShowExpenseForm(false)}
+            selectedMonth={selectedMonth}
+          />
+        )}
+      </div>
+
+      {/* Expense Form - Mobile Bottom Sheet */}
+      <MobileBottomSheet isOpen={showExpenseForm} onClose={() => setShowExpenseForm(false)} title="Add New Expense">
         <ExpenseForm
           onSubmit={createExpense}
           onCancel={() => setShowExpenseForm(false)}
           selectedMonth={selectedMonth}
         />
-      )}
+      </MobileBottomSheet>
 
-      {/* Navigation Tabs */}
-      <ul className="nav nav-tabs mb-4">
+      {/* Navigation Tabs - Desktop */}
+      <ul className="nav nav-tabs mb-4 d-mobile-none">
         <li className="nav-item">
           <button
             className={`nav-link ${activeTab === "overview" ? "active" : ""}`}
@@ -228,6 +295,36 @@ export default function BudgetModule({ compact = false }: BudgetModuleProps) {
         </li>
       </ul>
 
+      {/* Navigation Tabs - Mobile */}
+      <div className="d-mobile-only mb-3">
+        <div className="btn-group-mobile-horizontal">
+          <button
+            className={`btn ${activeTab === "overview" ? "btn-primary" : "btn-outline-primary"}`}
+            onClick={() => setActiveTab("overview")}
+          >
+            Overview
+          </button>
+          <button
+            className={`btn ${activeTab === "expenses" ? "btn-outline-secondary" : "btn-outline-secondary"}`}
+            onClick={() => setActiveTab("expenses")}
+          >
+            Expenses
+          </button>
+          <button
+            className={`btn ${activeTab === "charts" ? "btn-outline-info" : "btn-outline-info"}`}
+            onClick={() => setActiveTab("charts")}
+          >
+            Charts
+          </button>
+          <button
+            className={`btn ${activeTab === "settings" ? "btn-outline-warning" : "btn-outline-warning"}`}
+            onClick={() => setActiveTab("settings")}
+          >
+            Settings
+          </button>
+        </div>
+      </div>
+
       {/* Tab Content */}
       <div className="tab-content">
         {activeTab === "overview" && (
@@ -239,7 +336,39 @@ export default function BudgetModule({ compact = false }: BudgetModuleProps) {
           />
         )}
 
-        {activeTab === "expenses" && <ExpenseList expenses={budgetData.expenses} onDelete={deleteExpense} />}
+        {activeTab === "expenses" && (
+          <div>
+            {/* Desktop Expense List */}
+            <div className="d-mobile-none">
+              <ExpenseList expenses={budgetData.expenses} onDelete={deleteExpense} />
+            </div>
+
+            {/* Mobile Expense List */}
+            <div className="d-mobile-only">
+              {budgetData.expenses.length === 0 ? (
+                <div className="mobile-empty-state">
+                  <div className="empty-icon">
+                    <i className="bi bi-receipt"></i>
+                  </div>
+                  <div className="empty-title">No expenses yet</div>
+                  <div className="empty-description">Start tracking your expenses by adding your first expense</div>
+                  <div className="empty-action">
+                    <button className="btn btn-primary" onClick={() => setShowExpenseForm(true)}>
+                      <i className="bi bi-plus-circle me-2"></i>
+                      Add Your First Expense
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  {budgetData.expenses.map((expense) => (
+                    <MobileExpenseItem key={expense.id} expense={expense} onDelete={deleteExpense} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {activeTab === "charts" && <ExpenseCharts expenses={budgetData.expenses} budget={budgetData.budget} />}
 

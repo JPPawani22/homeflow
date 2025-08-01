@@ -3,6 +3,9 @@
 import { useState } from "react"
 import type { Expense } from "@/types"
 
+// Add mobile imports at the top
+import MobileExpenseItem from "@/components/mobile/MobileExpenseItem"
+
 interface ExpenseListProps {
   expenses: Expense[]
   onDelete: (id: number) => void
@@ -93,10 +96,11 @@ export default function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
 
   const filteredExpenses = getSortedAndFilteredExpenses()
 
+  // Update the main return section to include mobile layout
   return (
     <div>
-      {/* Filters and Search */}
-      <div className="homeflow-card card mb-4">
+      {/* Filters and Search - Desktop */}
+      <div className="homeflow-card card mb-4 d-mobile-none">
         <div className="card-body">
           <div className="row">
             <div className="col-md-4 mb-3">
@@ -181,8 +185,37 @@ export default function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
         </div>
       </div>
 
-      {/* Summary */}
-      <div className="row mb-4">
+      {/* Mobile Search */}
+      <div className="mobile-search mb-3 d-mobile-only">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search expenses..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <i className="search-icon bi bi-search"></i>
+        {searchTerm && (
+          <button className="search-clear" onClick={() => setSearchTerm("")}>
+            <i className="bi bi-x"></i>
+          </button>
+        )}
+      </div>
+
+      {/* Mobile Filters */}
+      <div className="d-mobile-only mb-3">
+        <select className="form-select" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
+          <option value="">All Categories</option>
+          {getUniqueCategories().map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Summary - Desktop */}
+      <div className="row mb-4 d-mobile-none">
         <div className="col-md-4">
           <div className="homeflow-card card border-info">
             <div className="card-body text-center">
@@ -211,8 +244,22 @@ export default function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
         </div>
       </div>
 
-      {/* Expense List */}
-      <div className="homeflow-card card">
+      {/* Mobile Summary */}
+      <div className="d-mobile-only mb-3">
+        <div className="mobile-stats-grid">
+          <div className="stat-card border-info">
+            <div className="stat-value text-info">{filteredExpenses.length}</div>
+            <div className="stat-label">Transactions</div>
+          </div>
+          <div className="stat-card border-primary">
+            <div className="stat-value text-primary">{formatCurrency(getTotalAmount())}</div>
+            <div className="stat-label">Total</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Expense List - Desktop */}
+      <div className="homeflow-card card d-mobile-none">
         <div className="card-header">
           <h5 className="mb-0">
             <i className="bi bi-receipt me-2"></i>
@@ -282,6 +329,29 @@ export default function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Expense List - Mobile */}
+      <div className="d-mobile-only">
+        {filteredExpenses.length === 0 ? (
+          <div className="mobile-empty-state">
+            <div className="empty-icon">
+              <i className="bi bi-receipt"></i>
+            </div>
+            <div className="empty-title">No expenses found</div>
+            <div className="empty-description">
+              {expenses.length === 0
+                ? "Start tracking your expenses by adding your first expense"
+                : "Try adjusting your search or filter criteria"}
+            </div>
+          </div>
+        ) : (
+          <div>
+            {filteredExpenses.map((expense) => (
+              <MobileExpenseItem key={expense.id} expense={expense} onDelete={onDelete} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

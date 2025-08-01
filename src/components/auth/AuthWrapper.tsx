@@ -8,10 +8,9 @@ import type { User as FirebaseUser } from "firebase/auth"
 
 interface AuthWrapperProps {
   children: React.ReactNode
-   compact?: boolean
 }
 
-export default function AuthWrapper({ children, compact }: AuthWrapperProps) {
+export default function AuthWrapper({ children }: AuthWrapperProps) {
   const [user, setUser] = useState<FirebaseUser | null>(null)
   const [loading, setLoading] = useState(true)
 

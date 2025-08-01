@@ -1,27 +1,15 @@
-// API routes for individual reminder operations
 import { type NextRequest, NextResponse } from "next/server"
-import { executeQuery, getUserByFirebaseUid } from "@/lib/database"
-
-async function verifyToken(authHeader: string | null) {
-  if (!authHeader?.startsWith("Bearer ")) {
-    throw new Error("No valid authorization header")
-  }
-  const token = authHeader.split("Bearer ")[1]
-  return { uid: token }
-}
+import { executeQuery } from "@/lib/database"
+import { verifyAuthToken } from "@/lib/auth"
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const authHeader = request.headers.get("authorization")
-    const { uid } = await verifyToken(authHeader)
-
-    const user = await getUserByFirebaseUid(uid)
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
-    }
-
+    const { user } = await verifyAuthToken(request)
     const data = await request.json()
     const reminderId = params.id
+
+    // Format the date to MySQL compatible format
+    const formattedDate = new Date(data.reminder_date).toISOString().slice(0, 19).replace('T', ' ')
 
     const query = `
       UPDATE reminders 
@@ -33,7 +21,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     await executeQuery(query, [
       data.title,
       data.description || null,
-      data.reminder_date,
+      formattedDate, // Use the formatted date here
       data.priority,
       data.reminder_type,
       data.is_completed || false,
@@ -50,17 +38,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const authHeader = request.headers.get("authorization")
-    const { uid } = await verifyToken(authHeader)
-
-    const user = await getUserByFirebaseUid(uid)
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
-    }
-
+    const { user } = await verifyAuthToken(request)
     const reminderId = params.id
-    const query = "DELETE FROM reminders WHERE id = ? AND user_id = ?"
 
+    const query = "DELETE FROM reminders WHERE id = ? AND user_id = ?"
     await executeQuery(query, [reminderId, user.id])
 
     return NextResponse.json({ success: true })
