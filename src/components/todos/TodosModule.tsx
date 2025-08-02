@@ -20,6 +20,7 @@ interface TodosModuleProps {
 export default function TodosModule({ compact = false }: TodosModuleProps) {
   const [todos, setTodos] = useState<Todo[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [filter, setFilter] = useState<"all" | "pending" | "completed" | "high" | "medium" | "low">("all")
   const [draggedItem, setDraggedItem] = useState<Todo | null>(null)
@@ -30,8 +31,13 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
 
   const fetchTodos = async () => {
     try {
+      setError(null)
       const user = auth.currentUser
-      if (!user) return
+      if (!user) {
+        setError("Please sign in to view your todos")
+        setLoading(false)
+        return
+      }
 
       const token = await user.getIdToken()
       const response = await fetch("/api/todos", {
@@ -39,16 +45,17 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
           Authorization: `Bearer ${token}`,
         },
       })
-if (!response.ok) {
-      throw new Error(response.status === 404 ? "User not found" : "Failed to fetch todos");
-    }
-    
-      if (response.ok) {
-        const data = await response.json()
-        setTodos(data)
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`)
       }
+
+      const data = await response.json()
+      setTodos(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error("Error fetching todos:", error)
+      setError(error instanceof Error ? error.message : "Failed to fetch todos")
     } finally {
       setLoading(false)
     }
@@ -56,8 +63,12 @@ if (!response.ok) {
 
   const createTodo = async (todoData: CreateTodoDTO) => {
     try {
+      setError(null)
       const user = auth.currentUser
-      if (!user) return
+      if (!user) {
+        setError("Please sign in to create todos")
+        return
+      }
 
       const token = await user.getIdToken()
       const response = await fetch("/api/todos", {
@@ -69,17 +80,22 @@ if (!response.ok) {
         body: JSON.stringify(todoData),
       })
 
-      if (response.ok) {
-        fetchTodos()
-        setShowForm(false)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Failed to create todo")
       }
+
+      await fetchTodos()
+      setShowForm(false)
     } catch (error) {
       console.error("Error creating todo:", error)
+      setError(error instanceof Error ? error.message : "Failed to create todo")
     }
   }
 
   const updateTodo = async (id: number, updates: Partial<Todo>) => {
     try {
+      setError(null)
       const user = auth.currentUser
       if (!user) return
 
@@ -96,16 +112,21 @@ if (!response.ok) {
         body: JSON.stringify({ ...todo, ...updates }),
       })
 
-      if (response.ok) {
-        fetchTodos()
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Failed to update todo")
       }
+
+      await fetchTodos()
     } catch (error) {
       console.error("Error updating todo:", error)
+      setError(error instanceof Error ? error.message : "Failed to update todo")
     }
   }
 
   const deleteTodo = async (id: number) => {
     try {
+      setError(null)
       const user = auth.currentUser
       if (!user) return
 
@@ -117,11 +138,15 @@ if (!response.ok) {
         },
       })
 
-      if (response.ok) {
-        fetchTodos()
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Failed to delete todo")
       }
+
+      await fetchTodos()
     } catch (error) {
       console.error("Error deleting todo:", error)
+      setError(error instanceof Error ? error.message : "Failed to delete todo")
     }
   }
 
@@ -207,9 +232,29 @@ if (!response.ok) {
     )
   }
 
+  if (error) {
+    return (
+      <div className="alert alert-danger" role="alert">
+        <h4 className="alert-heading">Error Loading Todos</h4>
+        <p>{error}</p>
+        <hr />
+        <div className="d-flex gap-2">
+          <button className="btn btn-outline-danger" onClick={fetchTodos}>
+            <i className="bi bi-arrow-clockwise me-2"></i>
+            Retry
+          </button>
+          <button className="btn btn-outline-secondary" onClick={() => setError(null)}>
+            Dismiss
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   const filteredTodos = getFilteredTodos()
   const stats = getStats()
 
+  // Rest of your component remains the same...
   if (compact) {
     const recentTodos = todos.filter((t) => !t.is_completed).slice(0, 3)
     return (
