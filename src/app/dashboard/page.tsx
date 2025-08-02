@@ -194,28 +194,24 @@ export default function Dashboard() {
 
                 {activeModule === "calendar" && (
                   <div>
-                    <h2 className="mb-4">Calendar & Events</h2>
-                    <CalendarModule children={undefined} />
+                     <CalendarModule children={undefined} />
                   </div>
                 )}
 
                 {activeModule === "reminders" && (
                   <div>
-                    <h2 className="mb-4">Reminders & Events</h2>
                     <RemindersModule />
                   </div>
                 )}
 
                 {activeModule === "todos" && (
                   <div>
-                    <h2 className="mb-4">Todo Lists</h2>
                     <TodosModule />
                   </div>
                 )}
 
                 {activeModule === "budget" && (
                   <div>
-                    <h2 className="mb-4">Budget & Expenses</h2>
                     <BudgetModule />
                   </div>
                 )}

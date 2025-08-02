@@ -55,7 +55,6 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
       const user = auth.currentUser
       if (!user) return
 
-      // Format the date before sending
       const formattedData = {
         ...formData,
         reminder_date: new Date(formData.reminder_date).toISOString()
@@ -92,7 +91,6 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
       const user = auth.currentUser
       if (!user) return
 
-      // Format the date before sending
       const formattedReminder = {
         ...reminder,
         reminder_date: new Date(reminder.reminder_date).toISOString()
@@ -160,6 +158,16 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
     return badges[priority as keyof typeof badges] || "badge bg-secondary"
   }
 
+  // Sort reminders with completed ones at the end, then by date
+  const sortedReminders = [...reminders].sort((a, b) => {
+    // Completed items go to the bottom
+    if (a.is_completed && !b.is_completed) return 1
+    if (!a.is_completed && b.is_completed) return -1
+    
+    // Then sort by date (earlier dates first)
+    return new Date(a.reminder_date).getTime() - new Date(b.reminder_date).getTime()
+  })
+
   if (loading) {
     return (
       <div className="text-center p-4">
@@ -170,43 +178,22 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
     )
   }
 
-  if (compact) {
-    const activeReminders = reminders.filter((r) => !r.is_completed).slice(0, 3)
-    return (
-      <div>
-        {activeReminders.length === 0 ? (
-          <p className="text-muted">No active reminders</p>
-        ) : (
-          <div className="list-group list-group-flush">
-            {activeReminders.map((reminder) => (
-              <div key={reminder.id} className="list-group-item border-0 px-0">
-                <div className="d-flex justify-content-between align-items-start">
-                  <div>
-                    <h6 className="mb-1">{reminder.title}</h6>
-                    <small className="text-muted">{formatDate(reminder.reminder_date)}</small>
-                  </div>
-                  <span className={getPriorityBadge(reminder.priority)}>{reminder.priority}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    )
-  }
-
   return (
-    <div>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3>Reminders & Events</h3>
-        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
-          <i className="bi bi-plus-circle me-2"></i>
-          Add Reminder
-        </button>
-      </div>
+    <div className={`reminders-module ${compact ? "compact-view" : ""}`}>
+      {!compact && (
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <button 
+            className="btn btn-primary" 
+            onClick={() => setShowForm(!showForm)}
+          >
+            <i className="bi bi-plus-circle me-2"></i>
+            Add Reminder
+          </button>
+        </div>
+      )}
 
-      {showForm && (
-        <div className="homeflow-card card mb-4">
+      {showForm && !compact && (
+        <div className="reminder-form-card card">
           <div className="card-header">
             <h5 className="mb-0">Create New Reminder</h5>
           </div>
@@ -289,7 +276,7 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
               </div>
               <div className="d-flex gap-2">
                 <button type="submit" className="btn btn-primary">
-                  Create Reminder
+                  Create
                 </button>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>
                   Cancel
@@ -300,47 +287,68 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
         </div>
       )}
 
-      <div className="homeflow-card card">
+      <div className="reminder-list card">
         <div className="card-body">
-          {reminders.length === 0 ? (
-            <div className="text-center p-4">
-              <i className="bi bi-bell display-4 text-muted"></i>
-              <h5 className="mt-3">No reminders yet</h5>
-              <p className="text-muted">Create your first reminder to get started</p>
+          {sortedReminders.length === 0 ? (
+            <div className="empty-state">
+              <i className="bi bi-bell"></i>
+              <h5>No reminders yet</h5>
+              {!compact && <p>Create your first reminder to get started</p>}
             </div>
           ) : (
             <div className="list-group list-group-flush">
-              {reminders.map((reminder) => (
-                <div key={reminder.id} className={`list-group-item border-0 priority-${reminder.priority}`}>
-                  <div className="d-flex justify-content-between align-items-start">
-                    <div className="flex-grow-1">
-                      <div className="d-flex align-items-center mb-2">
-                        <input
-                          type="checkbox"
-                          className="form-check-input me-3"
-                          checked={reminder.is_completed}
-                          onChange={() => toggleComplete(reminder)}
-                        />
-                        <h6
-                          className={`mb-0 ${reminder.is_completed ? "text-decoration-line-through text-muted" : ""}`}
-                        >
-                          {reminder.title}
-                        </h6>
-                        <span className={`ms-2 ${getPriorityBadge(reminder.priority)}`}>{reminder.priority}</span>
-                        <span className="badge bg-info ms-2">{reminder.reminder_type}</span>
+              {sortedReminders
+                .filter(reminder => compact ? !reminder.is_completed : true)
+                .slice(0, compact ? 3 : undefined)
+                .map((reminder) => (
+                  <div 
+                    key={reminder.id} 
+                    className={`list-group-item priority-${reminder.priority} ${reminder.is_completed ? 'completed-reminder' : ''}`}
+                  >
+                    <div className="d-flex justify-content-between align-items-start">
+                      <div className="flex-grow-1">
+                        <div className="d-flex align-items-center mb-2">
+                          {!compact && (
+                            <input
+                              type="checkbox"
+                              className="form-check-input me-3"
+                              checked={reminder.is_completed}
+                              onChange={() => toggleComplete(reminder)}
+                            />
+                          )}
+                          <h6
+                            className={`mb-0 ${reminder.is_completed ? "text-decoration-line-through text-muted" : ""}`}
+                          >
+                            {reminder.title}
+                          </h6>
+                          <span className={`ms-2 ${getPriorityBadge(reminder.priority)}`}>
+                            {reminder.priority}
+                          </span>
+                          {!compact && (
+                            <span className="badge bg-info ms-2">
+                              {reminder.reminder_type}
+                            </span>
+                          )}
+                        </div>
+                        {!compact && reminder.description && (
+                          <p className="mb-2 text-muted">{reminder.description}</p>
+                        )}
+                        <small className="text-muted">
+                          <i className="bi bi-calendar3 me-1"></i>
+                          {formatDate(reminder.reminder_date)}
+                        </small>
                       </div>
-                      {reminder.description && <p className="mb-2 text-muted">{reminder.description}</p>}
-                      <small className="text-muted">
-                        <i className="bi bi-calendar3 me-1"></i>
-                        {formatDate(reminder.reminder_date)}
-                      </small>
+                      {!compact && (
+                        <button 
+                          className="btn btn-outline-danger btn-sm" 
+                          onClick={() => deleteReminder(reminder.id)}
+                        >
+                          <i className="bi bi-trash"></i>
+                        </button>
+                      )}
                     </div>
-                    <button className="btn btn-outline-danger btn-sm" onClick={() => deleteReminder(reminder.id)}>
-                      <i className="bi bi-trash"></i>
-                    </button>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           )}
         </div>
