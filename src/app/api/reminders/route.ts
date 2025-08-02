@@ -1,36 +1,11 @@
-// API routes for reminders/events management
 import { type NextRequest, NextResponse } from "next/server"
-import { executeQuery, getUserByFirebaseUid } from "@/lib/database"
+import { executeQuery } from "@/lib/database"
+import { verifyAuthToken } from "@/lib/auth"
 import type { CreateReminderDTO } from "@/types"
-
-// Initialize Firebase Admin (add this to a separate admin config file in production)
-import { getApps } from "firebase-admin/app"
-
-if (!getApps().length) {
-  // You'll need to add Firebase Admin SDK credentials
-  // For now, we'll handle auth verification differently
-}
-
-async function verifyToken(authHeader: string | null) {
-  if (!authHeader?.startsWith("Bearer ")) {
-    throw new Error("No valid authorization header")
-  }
-
-  const token = authHeader.split("Bearer ")[1]
-  // In production, verify the Firebase token here
-  // For now, we'll extract the UID from the token (simplified)
-  return { uid: token } // This should be properly implemented
-}
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization")
-    const { uid } = await verifyToken(authHeader)
-
-    const user = await getUserByFirebaseUid(uid)
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
-    }
+    const { user } = await verifyAuthToken(request)
 
     const query = `
       SELECT * FROM reminders 
@@ -48,15 +23,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization")
-    const { uid } = await verifyToken(authHeader)
-
-    const user = await getUserByFirebaseUid(uid)
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
-    }
-
+    const { user } = await verifyAuthToken(request)
     const data: CreateReminderDTO = await request.json()
+
+    // Format the date to MySQL compatible format
+    const formattedDate = new Date(data.reminder_date).toISOString().slice(0, 19).replace('T', ' ')
 
     const query = `
       INSERT INTO reminders (user_id, title, description, reminder_date, priority, reminder_type)
@@ -67,7 +38,7 @@ export async function POST(request: NextRequest) {
       user.id,
       data.title,
       data.description || null,
-      data.reminder_date,
+      formattedDate, // Use the formatted date here
       data.priority,
       data.reminder_type,
     ])

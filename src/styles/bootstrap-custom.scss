@@ -4,16 +4,18 @@
 
 // Custom color variables
 $primary: #b663f1;
-$secondary: #6db3c8;
+$primary-gradient: linear-gradient(135deg,#672594  10%, #2094be 100%);
+$secondary: #2094be;
+$secondary-gradient: linear-gradient(135deg, #b663f1 10%, #12779c 100%);
 $success: #10b981;
-$info: #5f32c9;
+$info: #3a0f5780;
 $warning: #f59e0b;
 $danger: #ef4444;
 $light: #f8fafc;
 $dark: #000000;
 
 // Custom spacing
-$spacer: 1rem;
+$spacer: 2rem;
 $spacers: (
   0: 0,
   1: $spacer * 0.25,
@@ -52,12 +54,96 @@ $spacers: (
 }
 
 .sidebar {
-  background: linear-gradient(135deg, $primary 0%, darken($primary, 10%) 100%);
+  background: $primary-gradient;
   min-height: 100vh;
 }
 
+/* sidebar.css */
+.sidebar {
+  background: linear-gradient(135deg, #672594 10%, #2094be 100%);
+  min-height: 100vh;
+}
+
+.sidebar .nav-link {
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+  margin-bottom: 0.5rem;
+  border-radius: 50px !important;
+}
+
+.sidebar .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  transform: translateX(5px);
+}
+
+.sidebar .nav-link.active {
+  background: $secondary-gradient;
+  color: #ffffff !important;
+  font-weight: 600;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar .nav-link i {
+  transition: all 0.3s ease;
+}
+
+.sidebar .nav-link:hover i {
+  color: #b663f1;
+  background-color: $secondary-gradient;
+}
+
+.sidebar .btn-outline-light {
+  transition: all 0.3s ease;
+  border-radius: 50px;
+  border-width: 2px;
+  padding: 0.5rem 1rem;
+}
+
+.sidebar .btn-outline-light:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar .fw-bold {
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar .opacity-75 {
+  opacity: 0.85;
+}
+
+/* Animation for active nav item */
+@keyframes navItemActive {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+  100% { transform: translateX(0); }
+}
+
+.sidebar .nav-link.active {
+  animation: navItemActive 0.4s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar {
+    min-height: auto;
+    padding-bottom: 1rem;
+  }
+  
+  .sidebar .nav-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+}
+
 .main-content {
-  background-color: #f8fafc;
+  background-color: #faf8fb;
   min-height: 100vh;
 }
 

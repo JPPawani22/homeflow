@@ -1,4 +1,3 @@
-// API route to sync Firebase user with MySQL database
 import { type NextRequest, NextResponse } from "next/server"
 import { createUser } from "@/lib/database"
 

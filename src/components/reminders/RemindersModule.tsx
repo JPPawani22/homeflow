@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { auth } from "@/lib/firebase"
 import type { Reminder, CreateReminderDTO } from "@/types"
@@ -34,7 +33,7 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
       const token = await user.getIdToken()
       const response = await fetch("/api/reminders", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${user.uid}`,
         },
       })
 
@@ -56,14 +55,20 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
       const user = auth.currentUser
       if (!user) return
 
+      // Format the date before sending
+      const formattedData = {
+        ...formData,
+        reminder_date: new Date(formData.reminder_date).toISOString()
+      }
+
       const token = await user.getIdToken()
       const response = await fetch("/api/reminders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${user.uid}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formattedData),
       })
 
       if (response.ok) {
@@ -87,15 +92,21 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
       const user = auth.currentUser
       if (!user) return
 
+      // Format the date before sending
+      const formattedReminder = {
+        ...reminder,
+        reminder_date: new Date(reminder.reminder_date).toISOString()
+      }
+
       const token = await user.getIdToken()
       const response = await fetch(`/api/reminders/${reminder.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${user.uid}`,
         },
         body: JSON.stringify({
-          ...reminder,
+          ...formattedReminder,
           is_completed: !reminder.is_completed,
         }),
       })
@@ -117,7 +128,7 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
       const response = await fetch(`/api/reminders/${id}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${user.uid}`,
         },
       })
 

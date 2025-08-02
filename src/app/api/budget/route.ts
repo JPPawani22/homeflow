@@ -1,26 +1,11 @@
-// API routes for budget and expenses management
 import { type NextRequest, NextResponse } from "next/server"
-import { executeQuery, getUserByFirebaseUid } from "@/lib/database"
+import { executeQuery } from "@/lib/database"
+import { verifyAuthToken } from "@/lib/auth"
 import type { CreateExpenseDTO, UpdateBudgetDTO } from "@/types"
-
-async function verifyToken(authHeader: string | null) {
-  if (!authHeader?.startsWith("Bearer ")) {
-    throw new Error("No valid authorization header")
-  }
-  const token = authHeader.split("Bearer ")[1]
-  return { uid: token }
-}
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization")
-    const { uid } = await verifyToken(authHeader)
-
-    const user = await getUserByFirebaseUid(uid)
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
-    }
-
+    const { user } = await verifyAuthToken(request)
     const { searchParams } = new URL(request.url)
     const month = searchParams.get("month") || new Date().toISOString().slice(0, 7)
 
@@ -59,14 +44,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization")
-    const { uid } = await verifyToken(authHeader)
-
-    const user = await getUserByFirebaseUid(uid)
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
-    }
-
+    const { user } = await verifyAuthToken(request)
     const data: CreateExpenseDTO = await request.json()
 
     const query = `
@@ -92,14 +70,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization")
-    const { uid } = await verifyToken(authHeader)
-
-    const user = await getUserByFirebaseUid(uid)
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
-    }
-
+    const { user } = await verifyAuthToken(request)
     const data: UpdateBudgetDTO = await request.json()
 
     const query = `

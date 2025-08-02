@@ -1,23 +1,13 @@
-// API routes for todos management
 import { type NextRequest, NextResponse } from "next/server"
-import { executeQuery, getUserByFirebaseUid } from "@/lib/database"
+import { executeQuery } from "@/lib/database"
+import { verifyAuthToken } from "@/lib/auth"
 import type { CreateTodoDTO } from "@/types"
-
-async function verifyToken(authHeader: string | null) {
-  if (!authHeader?.startsWith("Bearer ")) {
-    throw new Error("No valid authorization header")
-  }
-  const token = authHeader.split("Bearer ")[1]
-  return { uid: token }
-}
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization")
-    const { uid } = await verifyToken(authHeader)
+    const { user } = await verifyAuthToken(request)
 
-    const user = await getUserByFirebaseUid(uid)
-    if (!user) {
+    if (!user || !user.id) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
@@ -38,21 +28,30 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(todos)
   } catch (error) {
     console.error("Error fetching todos:", error)
-    return NextResponse.json({ error: "Failed to fetch todos" }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Failed to fetch todos",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization")
-    const { uid } = await verifyToken(authHeader)
-
-    const user = await getUserByFirebaseUid(uid)
-    if (!user) {
+    const { user } = await verifyAuthToken(request)
+    
+    if (!user || !user.id) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
     const data: CreateTodoDTO = await request.json()
+    
+        // Validate required fields
+    if (!data.title || !data.title.trim()) {
+      return NextResponse.json({ error: "Title is required" }, { status: 400 })
+    }
 
     const query = `
       INSERT INTO todos (user_id, title, description, priority, due_date)
@@ -70,6 +69,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, id: (result as any).insertId })
   } catch (error) {
     console.error("Error creating todo:", error)
-    return NextResponse.json({ error: "Failed to create todo" }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Failed to create todo",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
   }
 }

@@ -8,6 +8,11 @@ import TodoItem from "./TodoItem"
 import TodoForm from "./TodoForm"
 import TodoFilters from "./TodoFilters"
 
+// Add mobile imports at the top
+import MobileStatsGrid from "@/components/mobile/MobileStatsGrid"
+import MobileTodoItem from "@/components/mobile/MobileTodoItem"
+import MobileBottomSheet from "@/components/mobile/MobileBottomSheet"
+
 interface TodosModuleProps {
   compact?: boolean
 }
@@ -15,6 +20,7 @@ interface TodosModuleProps {
 export default function TodosModule({ compact = false }: TodosModuleProps) {
   const [todos, setTodos] = useState<Todo[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [filter, setFilter] = useState<"all" | "pending" | "completed" | "high" | "medium" | "low">("all")
   const [draggedItem, setDraggedItem] = useState<Todo | null>(null)
@@ -25,8 +31,13 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
 
   const fetchTodos = async () => {
     try {
+      setError(null)
       const user = auth.currentUser
-      if (!user) return
+      if (!user) {
+        setError("Please sign in to view your todos")
+        setLoading(false)
+        return
+      }
 
       const token = await user.getIdToken()
       const response = await fetch("/api/todos", {
@@ -35,12 +46,16 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
         },
       })
 
-      if (response.ok) {
-        const data = await response.json()
-        setTodos(data)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`)
       }
+
+      const data = await response.json()
+      setTodos(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error("Error fetching todos:", error)
+      setError(error instanceof Error ? error.message : "Failed to fetch todos")
     } finally {
       setLoading(false)
     }
@@ -48,8 +63,12 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
 
   const createTodo = async (todoData: CreateTodoDTO) => {
     try {
+      setError(null)
       const user = auth.currentUser
-      if (!user) return
+      if (!user) {
+        setError("Please sign in to create todos")
+        return
+      }
 
       const token = await user.getIdToken()
       const response = await fetch("/api/todos", {
@@ -61,17 +80,22 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
         body: JSON.stringify(todoData),
       })
 
-      if (response.ok) {
-        fetchTodos()
-        setShowForm(false)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Failed to create todo")
       }
+
+      await fetchTodos()
+      setShowForm(false)
     } catch (error) {
       console.error("Error creating todo:", error)
+      setError(error instanceof Error ? error.message : "Failed to create todo")
     }
   }
 
   const updateTodo = async (id: number, updates: Partial<Todo>) => {
     try {
+      setError(null)
       const user = auth.currentUser
       if (!user) return
 
@@ -88,16 +112,21 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
         body: JSON.stringify({ ...todo, ...updates }),
       })
 
-      if (response.ok) {
-        fetchTodos()
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Failed to update todo")
       }
+
+      await fetchTodos()
     } catch (error) {
       console.error("Error updating todo:", error)
+      setError(error instanceof Error ? error.message : "Failed to update todo")
     }
   }
 
   const deleteTodo = async (id: number) => {
     try {
+      setError(null)
       const user = auth.currentUser
       if (!user) return
 
@@ -109,11 +138,15 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
         },
       })
 
-      if (response.ok) {
-        fetchTodos()
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Failed to delete todo")
       }
+
+      await fetchTodos()
     } catch (error) {
       console.error("Error deleting todo:", error)
+      setError(error instanceof Error ? error.message : "Failed to delete todo")
     }
   }
 
@@ -199,44 +232,100 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
     )
   }
 
+  if (error) {
+    return (
+      <div className="alert alert-danger" role="alert">
+        <h4 className="alert-heading">Error Loading Todos</h4>
+        <p>{error}</p>
+        <hr />
+        <div className="d-flex gap-2">
+          <button className="btn btn-outline-danger" onClick={fetchTodos}>
+            <i className="bi bi-arrow-clockwise me-2"></i>
+            Retry
+          </button>
+          <button className="btn btn-outline-secondary" onClick={() => setError(null)}>
+            Dismiss
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   const filteredTodos = getFilteredTodos()
   const stats = getStats()
 
+  // Rest of your component remains the same...
   if (compact) {
     const recentTodos = todos.filter((t) => !t.is_completed).slice(0, 3)
     return (
       <div>
-        {recentTodos.length === 0 ? (
-          <p className="text-muted">No pending todos</p>
-        ) : (
-          <div className="list-group list-group-flush">
-            {recentTodos.map((todo) => (
-              <div key={todo.id} className="list-group-item border-0 px-0">
-                <div className="d-flex align-items-center">
-                  <input
-                    type="checkbox"
-                    className="form-check-input me-3"
-                    checked={todo.is_completed}
-                    onChange={() => toggleComplete(todo.id)}
-                  />
-                  <div className="flex-grow-1">
-                    <h6 className="mb-1">{todo.title}</h6>
-                    <div className="d-flex align-items-center gap-2">
-                      <span
-                        className={`badge bg-${todo.priority === "high" ? "danger" : todo.priority === "medium" ? "warning" : "success"}`}
-                      >
-                        {todo.priority}
-                      </span>
-                      {todo.due_date && (
-                        <small className="text-muted">Due: {new Date(todo.due_date).toLocaleDateString()}</small>
-                      )}
+        {/* Mobile Stats Grid */}
+        <div className="d-mobile-only mb-3">
+          <MobileStatsGrid
+            stats={[
+              { label: "Total", value: stats.total, color: "primary", icon: "bi-list-ul" },
+              { label: "Pending", value: stats.pending, color: "warning", icon: "bi-clock" },
+              { label: "Done", value: stats.completed, color: "success", icon: "bi-check-circle" },
+              { label: "High", value: stats.highPriority, color: "danger", icon: "bi-exclamation-triangle" },
+            ]}
+          />
+        </div>
+
+        {/* Desktop compact view */}
+        <div className="d-mobile-none">
+          {recentTodos.length === 0 ? (
+            <p className="text-muted">No pending todos</p>
+          ) : (
+            <div className="list-group list-group-flush">
+              {recentTodos.map((todo) => (
+                <div key={todo.id} className="list-group-item border-0 px-0">
+                  <div className="d-flex align-items-center">
+                    <input
+                      type="checkbox"
+                      className="form-check-input me-3"
+                      checked={todo.is_completed}
+                      onChange={() => toggleComplete(todo.id)}
+                    />
+                    <div className="flex-grow-1">
+                      <h6 className="mb-1">{todo.title}</h6>
+                      <div className="d-flex align-items-center gap-2">
+                        <span
+                          className={`badge bg-${todo.priority === "high" ? "danger" : todo.priority === "medium" ? "warning" : "success"}`}
+                        >
+                          {todo.priority}
+                        </span>
+                        {todo.due_date && (
+                          <small className="text-muted">Due: {new Date(todo.due_date).toLocaleDateString()}</small>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Mobile compact view */}
+        <div className="d-mobile-only">
+          {recentTodos.length === 0 ? (
+            <p className="text-muted">No pending todos</p>
+          ) : (
+            <div>
+              {recentTodos.map((todo) => (
+                <MobileTodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggleComplete={toggleComplete}
+                  onChangePriority={changePriority}
+                  onDelete={deleteTodo}
+                  onUpdate={updateTodo}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="mt-3">
           <small className="text-muted">
             {stats.pending} pending • {stats.completed} completed
@@ -248,8 +337,8 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
 
   return (
     <div>
-      {/* Header with Stats */}
-      <div className="row mb-4">
+      {/* Header with Stats - Desktop */}
+      <div className="row mb-4 d-mobile-none">
         <div className="col-md-8">
           <div className="d-flex justify-content-between align-items-center">
             <h3>Todo Lists</h3>
@@ -297,14 +386,64 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
         </div>
       </div>
 
-      {/* Todo Form */}
-      {showForm && <TodoForm onSubmit={createTodo} onCancel={() => setShowForm(false)} />}
+      {/* Mobile Stats Grid */}
+      <div className="d-mobile-only mb-3">
+        <MobileStatsGrid
+          stats={[
+            { label: "Total", value: stats.total, color: "primary", icon: "bi-list-ul" },
+            { label: "Pending", value: stats.pending, color: "warning", icon: "bi-clock" },
+            { label: "Done", value: stats.completed, color: "success", icon: "bi-check-circle" },
+            { label: "High", value: stats.highPriority, color: "danger", icon: "bi-exclamation-triangle" },
+          ]}
+        />
+      </div>
 
-      {/* Filters */}
-      <TodoFilters currentFilter={filter} onFilterChange={setFilter} stats={stats} />
+      {/* Mobile FAB */}
+      <button className="mobile-fab d-mobile-only" onClick={() => setShowForm(true)}>
+        <i className="bi bi-plus"></i>
+      </button>
 
-      {/* Todo List */}
-      <div className="homeflow-card card">
+      {/* Todo Form - Desktop */}
+      <div className="d-mobile-none">
+        {showForm && <TodoForm onSubmit={createTodo} onCancel={() => setShowForm(false)} />}
+      </div>
+
+      {/* Todo Form - Mobile Bottom Sheet */}
+      <MobileBottomSheet isOpen={showForm} onClose={() => setShowForm(false)} title="Add New Todo">
+        <TodoForm onSubmit={createTodo} onCancel={() => setShowForm(false)} />
+      </MobileBottomSheet>
+
+      {/* Filters - Desktop */}
+      <div className="d-mobile-none">
+        <TodoFilters currentFilter={filter} onFilterChange={setFilter} stats={stats} />
+      </div>
+
+      {/* Filters - Mobile */}
+      <div className="d-mobile-only mb-3">
+        <div className="btn-group-mobile-horizontal">
+          <button
+            className={`btn ${filter === "all" ? "btn-primary" : "btn-outline-primary"}`}
+            onClick={() => setFilter("all")}
+          >
+            All ({stats.total})
+          </button>
+          <button
+            className={`btn ${filter === "pending" ? "btn-warning" : "btn-outline-warning"}`}
+            onClick={() => setFilter("pending")}
+          >
+            Pending ({stats.pending})
+          </button>
+          <button
+            className={`btn ${filter === "completed" ? "btn-success" : "btn-outline-success"}`}
+            onClick={() => setFilter("completed")}
+          >
+            Done ({stats.completed})
+          </button>
+        </div>
+      </div>
+
+      {/* Todo List - Desktop */}
+      <div className="homeflow-card card d-mobile-none">
         <div className="card-body">
           {filteredTodos.length === 0 ? (
             <div className="text-center p-4">
@@ -335,6 +474,44 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Todo List - Mobile */}
+      <div className="d-mobile-only">
+        {filteredTodos.length === 0 ? (
+          <div className="mobile-empty-state">
+            <div className="empty-icon">
+              <i className="bi bi-check-square"></i>
+            </div>
+            <div className="empty-title">{filter === "all" ? "No todos yet" : `No ${filter} todos`}</div>
+            <div className="empty-description">
+              {filter === "all"
+                ? "Create your first todo to get started"
+                : `Try changing the filter to see other todos`}
+            </div>
+            {filter === "all" && (
+              <div className="empty-action">
+                <button className="btn btn-primary" onClick={() => setShowForm(true)}>
+                  <i className="bi bi-plus-circle me-2"></i>
+                  Add Your First Todo
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div>
+            {filteredTodos.map((todo) => (
+              <MobileTodoItem
+                key={todo.id}
+                todo={todo}
+                onToggleComplete={toggleComplete}
+                onChangePriority={changePriority}
+                onDelete={deleteTodo}
+                onUpdate={updateTodo}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Progress Bar */}
