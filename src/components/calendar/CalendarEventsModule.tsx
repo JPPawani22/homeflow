@@ -203,7 +203,6 @@ export default function CalendarEventsModule({ compact = false }: CalendarEvents
 
   return (
     <div className="calendar-events-module">
-      <h2 className="mb-4">Calendar & Events</h2>
       <style jsx>{`
         .calendar-grid {
           display: grid;
