@@ -9,7 +9,7 @@ import TodosModule from "@/components/todos/TodosModule"
 import BudgetModule from "@/components/budget/BudgetModule"
 import MobileHeader from "@/components/mobile/MobileHeader"
 import MobileSidebar from "@/components/mobile/MobileSidebar"
-import CalendarModule from "@/components/calendar/CalendarModule"
+import CalendarEventsModule from "@/components/calendar/CalendarEventsModule"
 
 export default function Dashboard() {
   const [user, setUser] = useState<FirebaseUser | null>(null)
@@ -194,7 +194,7 @@ export default function Dashboard() {
 
                 {activeModule === "calendar" && (
                   <div>
-                     <CalendarModule children={undefined} />
+                    <CalendarEventsModule />
                   </div>
                 )}
 
@@ -227,7 +227,7 @@ export default function Dashboard() {
                           <i className="bi bi-calendar3 text-primary me-2"></i>
                           Upcoming Events
                         </h6>
-                        <CalendarModule compact={true} children={undefined} />
+                        <CalendarEventsModule compact={true} />
                       </div>
                     </div>
                     <div className="homeflow-card card mb-3">
@@ -260,7 +260,7 @@ export default function Dashboard() {
                   </div>
                 )}
 
-                {activeModule === "calendar" && <CalendarModule children={undefined} />}
+                {activeModule === "calendar" && <CalendarEventsModule />}
                 {activeModule === "reminders" && <RemindersModule />}
                 {activeModule === "todos" && <TodosModule />}
                 {activeModule === "budget" && <BudgetModule />}
