@@ -10,6 +10,7 @@ import BudgetModule from "@/components/budget/BudgetModule"
 import MobileHeader from "@/components/mobile/MobileHeader"
 import MobileSidebar from "@/components/mobile/MobileSidebar"
 import CalendarModule from "@/components/calendar/CalendarModule"
+import CalendarEventsModule from "@/components/calendar/CalendarEventsModule"
 
 export default function Dashboard() {
   const [user, setUser] = useState<FirebaseUser | null>(null)
@@ -195,27 +196,24 @@ export default function Dashboard() {
                 {activeModule === "calendar" && (
                   <div>
                     <h2 className="mb-4">Calendar & Events</h2>
-                    <CalendarModule children={undefined} />
+                    <CalendarEventsModule />
                   </div>
                 )}
 
                 {activeModule === "reminders" && (
                   <div>
-                    <h2 className="mb-4">Reminders & Events</h2>
                     <RemindersModule />
                   </div>
                 )}
 
                 {activeModule === "todos" && (
                   <div>
-                    <h2 className="mb-4">Todo Lists</h2>
                     <TodosModule />
                   </div>
                 )}
 
                 {activeModule === "budget" && (
                   <div>
-                    <h2 className="mb-4">Budget & Expenses</h2>
                     <BudgetModule />
                   </div>
                 )}
@@ -264,7 +262,7 @@ export default function Dashboard() {
                   </div>
                 )}
 
-                {activeModule === "calendar" && <CalendarModule children={undefined} />}
+                {activeModule === "calendar" && <CalendarEventsModule />}
                 {activeModule === "reminders" && <RemindersModule />}
                 {activeModule === "todos" && <TodosModule />}
                 {activeModule === "budget" && <BudgetModule />}
