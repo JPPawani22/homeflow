@@ -8,11 +8,12 @@ $primary-gradient: linear-gradient(135deg,#672594  10%, #2094be 100%);
 $secondary: #2094be;
 $secondary-gradient: linear-gradient(135deg, #b663f1 10%, #12779c 100%);
 $success: #10b981;
-$info: #3a0f5780;
+$info: #0f235780;
 $warning: #f59e0b;
 $danger: #ef4444;
 $light: #f8fafc;
 $dark: #000000;
+$muted: #64748b;
 $gray-gradient: linear-gradient(to top, #e0f9ff 1%, #ffffff 100%);
 
 // Custom spacing
@@ -35,13 +36,21 @@ $spacers: (
   border-radius: 12px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  background-color: white;
+  background-color: $gray-gradient;
   
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
   }
+
+  .card-title {
+    font-weight: 600;
+    color: rgb(68, 3, 103);
+    padding: 0.5rem 0;
+  }
+  
 }
+
 
 .priority-high {
   border-left: 4px solid $danger;
@@ -144,6 +153,13 @@ $spacers: (
   min-height: 100vh;
   padding-top: 1rem;
   position: relative;
+
+  
+  .h2{
+    font-weight: 600;
+    color: $secondary;
+  }
+  
 }
 
 .btn-primary {
@@ -227,44 +243,23 @@ $spacers: (
 }
 
 // Reminders Module SCSS
+
 .reminders-module {
-  .reminder-form-card {
-    margin-bottom: 1.5rem;
-    border-radius: 20px;
-    
-    .card-header {
-      background: linear-gradient(135deg, rgba(103, 37, 148, 0.65) 10%, rgba(32, 148, 190, 0.65) 100%);
-      color: white;
-      border-radius: 20px !important;
-      padding: 1rem 1.5rem;
-    }
-    
-    .card-body {
-      padding: 1.5rem;
-      
-      .form-label {
-        font-weight: 600;
-        color: $dark;
-      }
-      
-      .form-control, .form-select {
-        border-radius: 8px;
-        border: 1px solid rgba($primary, 0.2);
-        transition: all 0.3s ease;
-        
-        &:focus {
-          border-color: $primary;
-          box-shadow: 0 0 0 0.2rem rgba($primary, 0.15);
-        }
-      }
-    }
-  }
+  position: relative;
+  max-width: 100%;
+  margin-right: 10%;
   
-  .reminder-list {
+  .reminder-list-container {
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
     
     .empty-state {
-      padding: 2rem;
+      padding: 2rem 1rem;
       text-align: center;
+      color: $muted;
       
       i {
         font-size: 3rem;
@@ -273,103 +268,324 @@ $spacers: (
       }
       
       h5 {
-        color: $dark;
+        font-weight: 500;
         margin-bottom: 0.5rem;
       }
     }
+  }
+
+  .reminder-item {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 2px rgba(0, 0, 0, 0.03);
     
-    .list-group-item {
-      padding: 1.25rem 1.5rem;
-      border-left-width: 4px;
-      transition: all 0.2s ease;
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    }
+    
+    &.priority-high {
+      border-color: $danger;
+      background-color: rgba($danger, 0.03);
+    }
+    
+    &.priority-medium {
+      background-color: rgba($warning, 0.03);
+    }
+    
+    &.priority-low {
+      border-color: $success;
+      background-color: rgba($success, 0.03);
+    }
+    
+    &.completed-reminder {
+      opacity: 0.7;
+      background-color: rgba($muted, 0.05);
       
-      &:hover {
-        background-color: rgba($primary, 0.03);
-        transform: translateX(2px);
+      .reminder-title {
+        text-decoration: line-through;
+        color: $muted;
+      }
+    }
+    
+    .reminder-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+      
+      .reminder-title {
+        font-weight: 600;
+        margin: 0;
+        flex-grow: 1;
       }
       
-      &.priority-high {
-        background-color: rgba($danger, 0.03);
-      }
-      
-      &.priority-medium {
-        background-color: rgba($warning, 0.03);
-      }
-      
-      &.priority-low {
-        background-color: rgba($success, 0.03);
-      }
-      
-      .form-check-input {
-        width: 1.25em;
-        height: 1.25em;
-        margin-top: 0.25em;
-        border: 2px solid rgba($primary, 0.5);
-        
-        &:checked {
-          background-color: $success;
-          border-color: $success;
-        }
-      }
-      
-      h6 {
-        transition: all 0.3s ease;
-      }
-      
-      .badge {
-        font-size: 0.65rem;
-        padding: 0.35em 0.65em;
+      .priority-badge {
+        font-size: 0.7rem;
+        padding: 0.35em 0.75em;
+        border-radius: 50px;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        margin-left: 0.75rem;
+        
+        &.high {
+          background-color: rgba($danger, 0.1);
+          color: $danger;
+        }
+        
+        &.medium {
+          background-color: rgba($warning, 0.1);
+          color: $warning;
+        }
+        
+        &.low {
+          background-color: rgba($success, 0.1);
+          color: $success;
+        }
       }
+    }
+    
+    .reminder-body {
+      color: $muted;
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .reminder-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
       
-      small {
-        display: inline-flex;
+      .reminder-date {
+        display: flex;
         align-items: center;
+        color: $muted;
         
         i {
-          margin-right: 0.25rem;
+          margin-right: 0.3rem;
         }
       }
       
-      .btn-outline-danger {
-        padding: 0.25rem 0.5rem;
-        border-radius: 6px;
-        opacity: 0.7;
-        transition: all 0.2s ease;
-        
-        &:hover {
-          opacity: 1;
-          transform: scale(1.1);
+      .reminder-actions {
+        button {
+          padding: 0.25rem 0.5rem;
+          font-size: 0.8rem;
+          margin-left: 0.5rem;
+          border-radius: 6px;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            transform: scale(1.05);
+          }
         }
       }
     }
   }
-  
+
+  .add-reminder-btn {
+    padding: 0.75rem;
+    margin: 2rem 0;
+    border-radius: 20px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    
+    i {
+      margin-right: 0.5rem;
+      transition: all 0.3s ease;
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($primary, 0.2);
+      
+      i {
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  .reminder-form-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    backdrop-filter: blur(5px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    
+    &.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .reminder-form-card {
+      background-color: white;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 500px;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      
+      .visible & {
+        transform: translateY(0);
+      }
+      
+      .card-header {
+        background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+        color: white;
+        padding: 1.25rem;
+        position: relative;
+        
+        h3 {
+          margin: 0;
+          font-weight: 600;
+        }
+        
+        .close-btn {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          background: none;
+          border: none;
+          color: white;
+          font-size: 1.5rem;
+          opacity: 0.8;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+          }
+        }
+      }
+      
+      .card-body {
+        padding: 1.5rem;
+        
+        .form-group {
+          margin-bottom: 1.25rem;
+          
+          label {
+            font-weight: 500;
+            color: $dark;
+            margin-bottom: 0.5rem;
+            display: block;
+          }
+          
+          .form-control, .form-select {
+            border-radius: 8px;
+            padding: 0.75rem;
+            border: 1px solid rgba($muted, 0.2);
+            transition: all 0.3s ease;
+            
+            &:focus {
+              border-color: $primary;
+              box-shadow: 0 0 0 0.2rem rgba($primary, 0.15);
+            }
+          }
+          
+          textarea.form-control {
+            min-height: 100px;
+          }
+        }
+        
+        .form-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 0.75rem;
+          margin-top: 1.5rem;
+          
+          .btn {
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+          }
+        }
+      }
+    }
+  }
+
   // Compact view styles
   &.compact-view {
-    .list-group-item {
-      padding: 0.75rem 1rem;
-      border-left: none;
-      border-bottom: 1px solid rgba($primary, 0.1);
+    .reminder-list-container {
+      padding: 1rem;
+      background-color: transparent;
+      box-shadow: none;
       
-      &:last-child {
-        border-bottom: none;
+      .reminder-item {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+        
+        .reminder-header {
+          margin-bottom: 0.5rem;
+          
+          .reminder-title {
+            font-size: 0.9rem;
+          }
+        }
+        
+        .reminder-body {
+          display: none;
+        }
+        
+        .reminder-footer {
+          font-size: 0.75rem;
+        }
+      }
+    }
+    
+    .add-reminder-btn {
+      display: none;
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    .reminder-form-container {
+      padding: 1rem;
+      
+      .reminder-form-card {
+        max-width: 100%;
+      }
+    }
+    
+    .reminder-item {
+      padding: 1rem;
+      
+      .reminder-header {
+        flex-direction: column;
+        align-items: flex-start;
+        
+        .priority-badge {
+          margin-left: 0;
+          margin-top: 0.5rem;
+        }
       }
       
-      h6 {
-        font-size: 0.9rem;
-        margin-bottom: 0.25rem;
-      }
-      
-      small {
-        font-size: 0.75rem;
-      }
-      
-      .badge {
-        font-size: 0.6rem;
-        padding: 0.25em 0.5em;
+      .reminder-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        
+        .reminder-actions {
+          margin-top: 0.5rem;
+        }
       }
     }
   }
