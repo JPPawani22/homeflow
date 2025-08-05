@@ -171,8 +171,39 @@ export default function CalendarEventsModule({ compact = false }: CalendarEvents
     )
   }
 
+  // Compact view for mobile/overview
+  if (compact) {
+    const upcomingReminders = getUpcomingReminders().slice(0, 3)
+    return (
+      <div className="compact-calendar">
+        {upcomingReminders.length === 0 ? (
+          <p className="text-muted mb-0">No upcoming events</p>
+        ) : (
+          <div className="list-group list-group-flush">
+            {upcomingReminders.map((reminder) => (
+              <div key={reminder.id} className="list-group-item border-0 px-0 py-2">
+                <div className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div className="fw-medium">{reminder.title}</div>
+                    <small className="text-muted">
+                      {formatDate(reminder.reminder_date)}
+                    </small>
+                  </div>
+                  <span className={getPriorityBadge(reminder.priority)}>
+                    {reminder.priority}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="calendar-events-module">
+      <h2 className="mb-4">Calendar & Events</h2>
       <style jsx>{`
         .calendar-grid {
           display: grid;
