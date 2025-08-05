@@ -143,9 +143,9 @@ export default function Dashboard() {
                 {/* Desktop content with original styling */}
                 {activeModule === "overview" && (
                   <div>
-                    <h2 className="mb-4">Dashboard</h2>
+                    <h2 className="mb-4" style={{ color: "blue", fontWeight: "bold" }}>Dashboard</h2>
                     <div className="row">
-                      <div className="col-lg-6 mb-4">
+                      {/* <div className="col-lg-6 mb-4">
                         <div className="homeflow-card card h-100">
                           <div className="card-body">
                             <h5 className="card-title">
@@ -155,7 +155,7 @@ export default function Dashboard() {
                             <CalendarModule compact={true} children={undefined} />
                           </div>
                         </div>
-                      </div>
+                      </div> */}
                       <div className="col-lg-6 mb-4">
                         <div className="homeflow-card card h-100">
                           <div className="card-body">
@@ -196,7 +196,7 @@ export default function Dashboard() {
                 {activeModule === "calendar" && (
                   <div>
                     <h2 className="mb-4">Calendar & Events</h2>
-                    <CalendarEventsModule />
+                    <CalendarModule children={undefined} />
                   </div>
                 )}
 
