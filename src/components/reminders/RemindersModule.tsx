@@ -15,7 +15,7 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
   const [formData, setFormData] = useState<CreateReminderDTO>({
     title: "",
     description: "",
-    reminder_date: "",
+    reminder_date: "", 
     priority: "medium",
     reminder_type: "reminder",
   })

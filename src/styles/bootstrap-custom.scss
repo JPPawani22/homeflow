@@ -631,6 +631,119 @@ $spacers: (
   }
 }
 
+// Todo item styles
+  .todo-form {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(124, 121, 121, 0.037);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    backdrop-filter: blur(5px);
+    opacity: 1;
+    visibility: visible;
+    transition: all 0.3s ease;
+    
+      &.visible {
+      opacity: 0;
+      visibility: hidden;
+    }
+    
+    
+    .todo-form-card {
+      background-color: white;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 500px;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      
+          .visible & {
+              transform: translateY(0);
+            }
+      
+      .card-header {
+        background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+        color: white;
+        padding: 1.25rem;
+        position: relative;
+        
+        h3 {
+          margin: 0;
+          font-weight: 600;
+        }
+        
+        .close-btn {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          background: none;
+          border: none;
+          color: white;
+          font-size: 1.5rem;
+          opacity: 0.8;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+          }
+        }
+      }
+      
+      .card-body {
+        padding: 1.5rem;
+        
+        .form-group {
+          margin-bottom: 1.25rem;
+          
+          label {
+            font-weight: 500;
+            color: $dark;
+            margin-bottom: 0.5rem;
+            display: block;
+          }
+          
+          .form-control, .form-select {
+            border-radius: 8px;
+            padding: 0.75rem;
+            border: 1px solid rgba($muted, 0.2);
+            transition: all 0.3s ease;
+            
+            &:focus {
+              border-color: $primary;
+              box-shadow: 0 0 0 0.2rem rgba($primary, 0.15);
+            }
+          }
+          
+          textarea.form-control {
+            min-height: 100px;
+          }
+        }
+        
+        .form-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 0.75rem;
+          margin-top: 1.5rem;
+          
+          .btn {
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+          }
+        }
+      }
+    }
+  }
+
 // Drag and drop states
 .todo-item[draggable="true"] {
   &:active {
@@ -648,12 +761,12 @@ $spacers: (
 }
 
 // Form enhancements
-.todo-form {
-  .form-control:focus {
-    border-color: $primary;
-    box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
-  }
-}
+// .todo-form {
+//   .form-control:focus {
+//     border-color: $primary;
+//     box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
+//   }
+// }
 
 // Filter buttons
 .btn-group .btn {
