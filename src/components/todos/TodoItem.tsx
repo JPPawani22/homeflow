@@ -159,7 +159,7 @@ export default function TodoItem({
               {todo.description && (
                 <p className={`mb-2 small ${todo.is_completed ? "text-muted" : ""}`}>{todo.description}</p>
               )}
-              <div className="d-flex align-items-center gap-2 flex-wrap">
+              <div className="d-flex align-items-center gap-1 flex-wrap">
                 {/* Priority Badge */}
                 <div className="dropdown">
                   <button
