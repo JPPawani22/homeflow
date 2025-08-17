@@ -39,7 +39,6 @@ export default function Dashboard() {
   const getModuleTitle = () => {
     const titles = {
       overview: "Dashboard",
-      calendar: "Calendar",
       reminders: "Reminders",
       todos: "Todo Lists",
       budget: "Budget",
@@ -97,13 +96,6 @@ export default function Dashboard() {
                   Overview
                 </button>
                 <button
-                  className={`nav-link text-start mb-2 ${activeModule === "calendar" ? "active" : "text-white"}`}
-                  onClick={() => setActiveModule("calendar")}
-                >
-                  <i className="bi bi-calendar3 me-2"></i>
-                  Calendar
-                </button>
-                <button
                   className={`nav-link text-start mb-2 ${activeModule === "reminders" ? "active" : "text-white"}`}
                   onClick={() => setActiveModule("reminders")}
                 >
@@ -144,17 +136,17 @@ export default function Dashboard() {
                   <div>
                     <h2 className="mb-4" style={{ color: "blue", fontWeight: "bold" }}>Dashboard</h2>
                     <div className="row">
-                      {/* <div className="col-lg-6 mb-4">
+                      <div className="col-lg-6 mb-4">
                         <div className="homeflow-card card h-100">
                           <div className="card-body">
                             <h5 className="card-title">
                               <i className="bi bi-calendar3 text-primary me-2"></i>
-                              Upcoming Events
+                              Calendar
                             </h5>
-                            <CalendarModule compact={true} children={undefined} />
+                            <CalendarEventsModule compact={true} />
                           </div>
                         </div>
-                      </div> */}
+                      </div>
                       <div className="col-lg-6 mb-4">
                         <div className="homeflow-card card h-100">
                           <div className="card-body">
@@ -192,12 +184,6 @@ export default function Dashboard() {
                   </div>
                 )}
 
-                {activeModule === "calendar" && (
-                  <div>
-                    <CalendarEventsModule />
-                  </div>
-                )}
-
                 {activeModule === "reminders" && (
                   <div>
                     <RemindersModule />
@@ -225,7 +211,7 @@ export default function Dashboard() {
                       <div className="card-body">
                         <h6 className="card-title">
                           <i className="bi bi-calendar3 text-primary me-2"></i>
-                          Upcoming Events
+                          Calendar
                         </h6>
                         <CalendarEventsModule compact={true} />
                       </div>
@@ -260,7 +246,7 @@ export default function Dashboard() {
                   </div>
                 )}
 
-                {activeModule === "calendar" && <CalendarEventsModule />}
+                {activeModule === "reminders" && <RemindersModule />}
                 {activeModule === "reminders" && <RemindersModule />}
                 {activeModule === "todos" && <TodosModule />}
                 {activeModule === "budget" && <BudgetModule />}
