@@ -216,6 +216,8 @@ body {
   }
 }
 
+
+
 // Mobile todo items
 @media (max-width: $mobile-md) {
   .todo-item {
@@ -264,6 +266,66 @@ body {
   }
 }
 
+
+// Mobile Bottom Sheet
+.mobile-bottom-sheet {
+  position: fixed;
+  bottom: -100%;
+  left: 0;
+  right: 0;
+  background: white;
+  z-index: 1060;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.1);
+  transition: bottom 0.3s ease-in-out;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  &.show {
+    bottom: 0;
+  }
+
+  .bottom-sheet-handle {
+    width: 40px;
+    height: 4px;
+    background-color: #ccc;
+    border-radius: 2px;
+    margin: 10px auto;
+  }
+
+  .bottom-sheet-header {
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h5 {
+      margin: 0;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: $primary;
+    }
+
+    button {
+      background: none;
+      border: none;
+      color: $primary;
+      font-size: 1.25rem;
+    }
+  }
+
+  .bottom-sheet-body {
+    padding: 1rem;
+    overflow-y: auto;
+    flex: 1;
+  }
+}
+
+
 // Mobile floating action button
 .mobile-fab {
   position: fixed;
@@ -271,7 +333,7 @@ body {
   right: 1rem;
   width: 56px;
   height: 56px;
-  border-radius: 50%;
+  border-radius: 20%;
   background: $primary-gradient;
   color: white;
   border: none;
@@ -280,7 +342,7 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
-  z-index: 1020;
+  z-index: 1070;
   transition: all 0.3s ease;
   
   &:hover {
