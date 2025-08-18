@@ -8,6 +8,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const data = await request.json()
     const todoId = params.id
 
+    const formattedDueDate = data.due_date
+      ? new Date(data.due_date).toISOString().slice(0, 19).replace('T', ' ')
+      : null
+
     const query = `
       UPDATE todos 
       SET title = ?, description = ?, priority = ?, due_date = ?, is_completed = ?
@@ -18,7 +22,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       data.title,
       data.description || null,
       data.priority,
-      data.due_date || null,
+      formattedDueDate,
       data.is_completed || false,
       todoId,
       user.id,

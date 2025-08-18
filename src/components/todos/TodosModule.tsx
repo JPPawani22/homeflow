@@ -7,6 +7,7 @@ import type { Todo, CreateTodoDTO } from "@/types"
 import TodoItem from "./TodoItem"
 import TodoForm from "./TodoForm"
 import TodoFilters from "./TodoFilters"
+import Modal from "./Modal"
 
 // Add mobile imports at the top
 import MobileStatsGrid from "@/components/mobile/MobileStatsGrid"
@@ -99,6 +100,10 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
       const user = auth.currentUser
       if (!user) return
 
+      setTodos(prev => prev.map(t =>
+        t.id === id ? { ...t, ...updates } : t
+      ));
+
       const token = await user.getIdToken()
       const todo = todos.find((t) => t.id === id)
       if (!todo) return
@@ -117,7 +122,10 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
         throw new Error(errorData.error || "Failed to update todo")
       }
 
-      await fetchTodos()
+      await fetchTodos();
+
+      setTimeout(fetchTodos, 1000);
+
     } catch (error) {
       console.error("Error updating todo:", error)
       setError(error instanceof Error ? error.message : "Failed to update todo")
@@ -192,7 +200,7 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
   }
 
   const getFilteredTodos = () => {
-    let filtered = todos
+    let filtered =  [...todos];
 
     switch (filter) {
       case "pending":
@@ -209,6 +217,27 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
       default:
         filtered = todos
     }
+
+  filtered.sort((a, b) => {
+    // First by completion status (incomplete first)
+    if (a.is_completed !== b.is_completed) {
+      return a.is_completed ? 1 : -1;
+    }
+    
+    // Then by priority (high first)
+    const priorityOrder = { high: 1, medium: 2, low: 3 };
+    if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+      return priorityOrder[a.priority] - priorityOrder[b.priority];
+    }
+    
+    // Then by due date (earlier first)
+    if (a.due_date && b.due_date) {
+      return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+    }
+    
+    // Finally by creation date (newer first)
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
 
     return filtered
   }
@@ -346,7 +375,7 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
               <i className="bi bi-plus-circle me-2"></i>
               Add Todo
             </button>
-          </div>
+          </div>  
         </div>
         <div className="col-md-4">
           <div className="row text-center">
@@ -358,14 +387,16 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
                 </div>
               </div>
             </div>
-            <div className="col-3">
-              <div className="homeflow-card card border-warning">
-                <div className="card-body p-2">
-                  <h5 className="text-warning mb-0">{stats.pending}</h5>
-                  <small className="text-muted">Pending</small>
-                </div>
-              </div>
-            </div>
+<div className="col-3">
+  <div className="homeflow-card card border-warning h-100">
+    <div className="card-body p-2 d-flex flex-column align-items-center justify-content-center text-center">
+      <h5 className="text-warning mb-0">{stats.pending}</h5>
+      <small className="text-muted text-nowrap">Pending</small>
+    </div>
+  </div>
+</div>
+
+
             <div className="col-3">
               <div className="homeflow-card card border-success">
                 <div className="card-body p-2">
@@ -386,6 +417,20 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
         </div>
       </div>
 
+       {/* Mobile Top Add Button */}
+      <div className="d-mobile-only mb-3">
+        <div className="d-flex justify-content-between align-items-center">
+          <h3 className="mb-0">Todo Lists</h3>
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={() => setShowForm(true)}
+          >
+            <i className="bi bi-plus-circle me-1"></i>
+            Add Todo
+          </button>
+        </div>
+      </div>
+
       {/* Mobile Stats Grid */}
       <div className="d-mobile-only mb-3">
         <MobileStatsGrid
@@ -399,19 +444,36 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
       </div>
 
       {/* Mobile FAB */}
-      <button className="mobile-fab d-mobile-only" onClick={() => setShowForm(true)}>
-        <i className="bi bi-plus"></i>
-      </button>
+      {/* Mobile Top Add Button */}
+      {/* <div className="d-mobile-only px-3 pt-3">
+        <button
+          className="add-reminder-btn btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
+          onClick={() => setShowForm(true)}
+        >
+          <i className="bi bi-plus-circle"></i>
+          Add Todo
+        </button>
+      </div> */}
 
-      {/* Todo Form - Desktop */}
+
+
+      {/* Modal for desktop */}
       <div className="d-mobile-none">
-        {showForm && <TodoForm onSubmit={createTodo} onCancel={() => setShowForm(false)} />}
+        <Modal isOpen={showForm} onClose={() => setShowForm(false)}>
+          <TodoForm onSubmit={createTodo} onCancel={() => setShowForm(false)} />
+        </Modal>
       </div>
 
-      {/* Todo Form - Mobile Bottom Sheet */}
+      {/* Todo Form - Mobile Bottom Sheet
       <MobileBottomSheet isOpen={showForm} onClose={() => setShowForm(false)} title="Add New Todo">
         <TodoForm onSubmit={createTodo} onCancel={() => setShowForm(false)} />
-      </MobileBottomSheet>
+      </MobileBottomSheet> */}
+
+
+      <Modal isOpen={showForm} onClose={() => setShowForm(false)}>
+        <TodoForm onSubmit={createTodo} onCancel={() => setShowForm(false)} />
+      </Modal>
+
 
       {/* Filters - Desktop */}
       <div className="d-mobile-none">
@@ -420,7 +482,7 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
 
       {/* Filters - Mobile */}
       <div className="d-mobile-only mb-3">
-        <div className="btn-group-mobile-horizontal">
+        <div className="btn-group-mobile-horizontal gap-2 d-flex">
           <button
             className={`btn ${filter === "all" ? "btn-primary" : "btn-outline-primary"}`}
             onClick={() => setFilter("all")}
@@ -476,43 +538,54 @@ export default function TodosModule({ compact = false }: TodosModuleProps) {
         </div>
       </div>
 
-      {/* Todo List - Mobile */}
-      <div className="d-mobile-only">
-        {filteredTodos.length === 0 ? (
-          <div className="mobile-empty-state">
-            <div className="empty-icon">
-              <i className="bi bi-check-square"></i>
-            </div>
-            <div className="empty-title">{filter === "all" ? "No todos yet" : `No ${filter} todos`}</div>
-            <div className="empty-description">
-              {filter === "all"
-                ? "Create your first todo to get started"
-                : `Try changing the filter to see other todos`}
-            </div>
-            {filter === "all" && (
-              <div className="empty-action">
-                <button className="btn btn-primary" onClick={() => setShowForm(true)}>
-                  <i className="bi bi-plus-circle me-2"></i>
-                  Add Your First Todo
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div>
-            {filteredTodos.map((todo) => (
-              <MobileTodoItem
-                key={todo.id}
-                todo={todo}
-                onToggleComplete={toggleComplete}
-                onChangePriority={changePriority}
-                onDelete={deleteTodo}
-                onUpdate={updateTodo}
-              />
-            ))}
-          </div>
+{/* Todo List - Mobile */}
+<div className="d-mobile-only">
+  {filteredTodos.length === 0 ? (
+    <div className="homeflow-card card">
+      <div className="card-body text-center p-4">
+        <i className="bi bi-check-square display-4 text-muted"></i>
+        <h5 className="mt-3">{filter === "all" ? "No todos yet" : `No ${filter} todos`}</h5>
+        <p className="text-muted">
+          {filter === "all"
+            ? "Create your first todo to get started"
+            : `Try changing the filter to see other todos`}
+        </p>
+        {filter === "all" && (
+          <button 
+            className="btn btn-primary mt-3"
+            onClick={() => setShowForm(true)}
+          >
+            <i className="bi bi-plus-circle me-2"></i>
+            Add Your First Todo
+          </button>
         )}
       </div>
+    </div>
+  ) : (
+    <div className="homeflow-card card">
+      <div className="card-body">
+        <div className="todo-list">
+          {filteredTodos.map((todo) => (
+            
+            <TodoItem  
+              key={todo.id}
+              todo={todo}
+              onToggleComplete={toggleComplete}
+              onChangePriority={changePriority}
+              onDelete={deleteTodo}
+              onUpdate={updateTodo}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              isDragging={draggedItem?.id === todo.id}
+            />
+            
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
+</div>
 
       {/* Progress Bar */}
       {todos.length > 0 && (
