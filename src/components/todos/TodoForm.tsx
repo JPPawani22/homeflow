@@ -7,6 +7,7 @@ import type { CreateTodoDTO } from "@/types"
 interface TodoFormProps {
   onSubmit: (todo: CreateTodoDTO) => void
   onCancel: () => void
+  
 }
 
 export default function TodoForm({ onSubmit, onCancel }: TodoFormProps) {
@@ -67,17 +68,20 @@ export default function TodoForm({ onSubmit, onCancel }: TodoFormProps) {
   }
 
   return (
-    <div className="homeflow-card card mb-4">
-      <div className="card-header">
-        <h5 className="mb-0">
-          <i className="bi bi-plus-circle me-2"></i>
-          Create New Todo
-        </h5>
-      </div>
+    <div className="todo-form">
+      <div className="todo-form-card ">
+        <div className="card-header mb-3">
+          <h3 className="mb-0">
+            Create New Todo
+          </h3>
+          <button className="close-btn" onClick={onCancel}>
+            &times;
+          </button>
+        </div>
       <div className="card-body">
         <form onSubmit={handleSubmit}>
-          <div className="row">
-            <div className="col-md-8 mb-3">
+          
+            <div className="form-group">
               <label htmlFor="title" className="form-label">
                 Title <span className="text-danger">*</span>
               </label>
@@ -91,7 +95,7 @@ export default function TodoForm({ onSubmit, onCancel }: TodoFormProps) {
               />
               {errors.title && <div className="invalid-feedback">{errors.title}</div>}
             </div>
-            <div className="col-md-4 mb-3">
+            <div className="form-group">
               <label htmlFor="priority" className="form-label">
                 Priority
               </label>
@@ -106,10 +110,8 @@ export default function TodoForm({ onSubmit, onCancel }: TodoFormProps) {
                 <option value="high">🔴 High Priority</option>
               </select>
             </div>
-          </div>
-
-          <div className="row">
-            <div className="col-md-8 mb-3">
+          
+            <div className="form-group">
               <label htmlFor="description" className="form-label">
                 Description
               </label>
@@ -122,7 +124,7 @@ export default function TodoForm({ onSubmit, onCancel }: TodoFormProps) {
                 placeholder="Add more details about this todo..."
               />
             </div>
-            <div className="col-md-4 mb-3">
+            <div className="form-group">
               <label htmlFor="due_date" className="form-label">
                 Due Date
               </label>
@@ -136,19 +138,18 @@ export default function TodoForm({ onSubmit, onCancel }: TodoFormProps) {
               />
               {errors.due_date && <div className="invalid-feedback">{errors.due_date}</div>}
             </div>
-          </div>
+          
 
-          <div className="d-flex gap-2">
-            <button type="submit" className="btn btn-primary">
-              <i className="bi bi-plus-circle me-2"></i>
-              Create Todo
-            </button>
-            <button type="button" className="btn btn-secondary" onClick={onCancel}>
-              <i className="bi bi-x-circle me-2"></i>
-              Cancel
-            </button>
-          </div>
+            <div className="form-actions d-flex gap-2">
+              <button type="button" className="btn btn-secondary" onClick={onCancel}>
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary">
+                Create
+              </button>
+            </div>
         </form>
+      </div>
       </div>
     </div>
   )
