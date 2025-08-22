@@ -89,7 +89,7 @@ export default function BudgetModule({ compact = false }: BudgetModuleProps) {
     try {
       const user = auth.currentUser
       if (!user) return
-
+  
       const token = await user.getIdToken()
       const response = await fetch("/api/budget", {
         method: "PUT",
@@ -227,13 +227,17 @@ export default function BudgetModule({ compact = false }: BudgetModuleProps) {
             onChange={(e) => setSelectedMonth(e.target.value)}
             style={{ maxWidth: "200px" }}
           />
+          <button className="btn btn-sm btn-primary ms-2" onClick={() => setShowExpenseForm(true)}>
+            <i className="bi bi-plus-circle me-1"></i>
+            Add Expense
+          </button>
         </div>
       </div>
 
       {/* Mobile FAB */}
-      <button className="mobile-fab d-mobile-only" onClick={() => setShowExpenseForm(true)}>
+      {/* <button className="mobile-fab d-mobile-only" onClick={() => setShowExpenseForm(true)}>
         <i className="bi bi-plus"></i>
-      </button>
+      </button> */}
 
       {/* Expense Form - Desktop */}
       <div className="d-mobile-none">
@@ -247,13 +251,21 @@ export default function BudgetModule({ compact = false }: BudgetModuleProps) {
       </div>
 
       {/* Expense Form - Mobile Bottom Sheet */}
-      <MobileBottomSheet isOpen={showExpenseForm} onClose={() => setShowExpenseForm(false)} title="Add New Expense">
+      {/* <MobileBottomSheet isOpen={showExpenseForm} onClose={() => setShowExpenseForm(false)} title="Add New Expense">
         <ExpenseForm
           onSubmit={createExpense}
           onCancel={() => setShowExpenseForm(false)}
           selectedMonth={selectedMonth}
         />
-      </MobileBottomSheet>
+      </MobileBottomSheet> */}
+      {showExpenseForm && (
+        
+          <ExpenseForm
+            onSubmit={createExpense}
+            onCancel={() => setShowExpenseForm(false)}
+            selectedMonth={selectedMonth}
+          />
+      )}
 
       {/* Navigation Tabs - Desktop */}
       <ul className="nav nav-tabs mb-4 d-mobile-none">
@@ -297,27 +309,27 @@ export default function BudgetModule({ compact = false }: BudgetModuleProps) {
 
       {/* Navigation Tabs - Mobile */}
       <div className="d-mobile-only mb-3">
-        <div className="btn-group-mobile-horizontal">
+        <div className="d-flex justify-content-between gap-1 py-2">
           <button
-            className={`btn ${activeTab === "overview" ? "btn-primary" : "btn-outline-primary"}`}
+            className={`btn btn-sm flex-fill ${activeTab === "overview" ? "btn-primary" : "btn-outline-primary"}`}
             onClick={() => setActiveTab("overview")}
           >
             Overview
           </button>
           <button
-            className={`btn ${activeTab === "expenses" ? "btn-outline-secondary" : "btn-outline-secondary"}`}
+            className={`btn btn-sm flex-fill ${activeTab === "expenses" ? "btn-outline-secondary" : "btn-outline-secondary"}`}
             onClick={() => setActiveTab("expenses")}
           >
             Expenses
           </button>
           <button
-            className={`btn ${activeTab === "charts" ? "btn-outline-info" : "btn-outline-info"}`}
+            className={`btn btn-sm flex-fill ${activeTab === "charts" ? "btn-outline-info" : "btn-outline-info"}`}
             onClick={() => setActiveTab("charts")}
           >
             Charts
           </button>
           <button
-            className={`btn ${activeTab === "settings" ? "btn-outline-warning" : "btn-outline-warning"}`}
+            className={`btn btn-sm flex-fill ${activeTab === "settings" ? "btn-outline-warning" : "btn-outline-warning"}`}
             onClick={() => setActiveTab("settings")}
           >
             Settings
