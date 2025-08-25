@@ -247,7 +247,6 @@ export default function Dashboard() {
                 )}
 
                 {activeModule === "reminders" && <RemindersModule />}
-                {activeModule === "reminders" && <RemindersModule />}
                 {activeModule === "todos" && <TodosModule />}
                 {activeModule === "budget" && <BudgetModule />}
               </div>

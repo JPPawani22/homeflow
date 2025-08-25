@@ -12,7 +12,6 @@ import BudgetSettings from "./BudgetSettings"
 // Add mobile imports at the top
 import MobileStatsGrid from "@/components/mobile/MobileStatsGrid"
 import MobileExpenseItem from "@/components/mobile/MobileExpenseItem"
-import MobileBottomSheet from "@/components/mobile/MobileBottomSheet"
 import { formatCurrency } from "@/lib/utils"
 
 interface BudgetModuleProps {
