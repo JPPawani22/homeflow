@@ -7,15 +7,13 @@ import type { User as FirebaseUser } from "firebase/auth"
 import RemindersModule from "@/components/reminders/RemindersModule"
 import TodosModule from "@/components/todos/TodosModule"
 import BudgetModule from "@/components/budget/BudgetModule"
-import MobileHeader from "@/components/mobile/MobileHeader"
-import MobileSidebar from "@/components/mobile/MobileSidebar"
 import CalendarEventsModule from "@/components/calendar/CalendarEventsModule"
+// import "./Dashboard.scss"
 
 export default function Dashboard() {
   const [user, setUser] = useState<FirebaseUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeModule, setActiveModule] = useState("overview")
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -38,7 +36,7 @@ export default function Dashboard() {
 
   const getModuleTitle = () => {
     const titles = {
-      overview: "Dashboard",
+      overview: "Dashboard Overview",
       reminders: "Reminders",
       todos: "Todo Lists",
       budget: "Budget",
@@ -48,7 +46,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center align-items-center vh-100">
+      <div className="dashboard-loading">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -61,199 +59,104 @@ export default function Dashboard() {
   }
 
   return (
-    <>
-      {/* Mobile Header */}
-      <MobileHeader title={getModuleTitle()} onMenuClick={() => setMobileMenuOpen(true)} />
-
-      {/* Mobile Sidebar */}
-      <MobileSidebar
-        isOpen={mobileMenuOpen}
-        onClose={() => setMobileMenuOpen(false)}
-        user={user}
-        activeModule={activeModule}
-        onModuleChange={setActiveModule}
-        onLogout={handleLogout}
-      />
-
-      <div className="container-fluid">
-        <div className="row">
-          {/* Desktop Sidebar */}
-          <div className="col-md-3 col-lg-2 sidebar p-0 d-mobile-none">
-            <div className="d-flex flex-column p-3 text-white">
-              <div className="mb-4">
-                <h2 className="fw" style={{ fontFamily: "fantasy, cursive", letterSpacing: "3px" }}>
-                  HomeFlow
-                </h2>
-                <small className="opacity-75">Welcome,<br></br><b>{user.email}</b> </small>
-              </div>
-
-              <nav className="nav nav-pills flex-column">
-                <button
-                  className={`nav-link text-start mb-2 ${activeModule === "overview" ? "active" : "text-white"}`}
-                  onClick={() => setActiveModule("overview")}
-                >
-                  <i className="bi bi-house-door me-2"></i>
-                  Overview
-                </button>
-                <button
-                  className={`nav-link text-start mb-2 ${activeModule === "reminders" ? "active" : "text-white"}`}
-                  onClick={() => setActiveModule("reminders")}
-                >
-                  <i className="bi bi-bell me-2"></i>
-                  Reminders
-                </button>
-                <button
-                  className={`nav-link text-start mb-2 ${activeModule === "todos" ? "active" : "text-white"}`}
-                  onClick={() => setActiveModule("todos")}
-                >
-                  <i className="bi bi-check-square me-2"></i>
-                  Todo Lists
-                </button>
-                <button
-                  className={`nav-link text-start mb-2 ${activeModule === "budget" ? "active" : "text-white"}`}
-                  onClick={() => setActiveModule("budget")}
-                >
-                  <i className="bi bi-wallet2 me-2"></i>
-                  Budget
-                </button>
-              </nav>
-
-                <div className="position-absolute bottom-0 start-10 p-3">
-                <button className="btn btn-outline-light w-100" onClick={handleLogout}>
-                  <i className="bi bi-box-arrow-right me-2"></i>
-                  Logout
-                </button>
-                </div>
-            </div>
+    <div className="dashboard-container">
+      {/* Horizontal Header */}
+      <header className="dashboard-header">
+        <div className="header-content">
+          <h1 className="app-name">HomeFlow</h1>
+          <div className="header-right">
+            <span className="user-email"> {user.email}</span>
+            <button className="logout-btn" onClick={handleLogout}>
+              <i className="bi bi-box-arrow-right me-2"></i>
+              Logout
+            </button>
           </div>
+        </div>
+      </header>
 
-          {/* Main Content */}
-          <div className="col-md-9 col-lg-10 main-content">
-            <div className="mobile-content">
-              <div className="p-4 d-mobile-none">
-                {/* Desktop content with original styling */}
-                {activeModule === "overview" && (
-                  <div>
-                    <h2 className="mb-4" style={{ color: "blue", fontWeight: "bold" }}>Dashboard</h2>
-                    <div className="row">
-                      <div className="col-lg-6 mb-4">
-                        <div className="homeflow-card card h-100">
-                          <div className="card-body">
-                            <h5 className="card-title">
-                              <i className="bi bi-calendar3 text-primary me-2"></i>
-                              Calendar
-                            </h5>
-                            <CalendarEventsModule compact={true} />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-6 mb-4">
-                        <div className="homeflow-card card h-100">
-                          <div className="card-body">
-                            <h5 className="card-title">
-                              <i className="bi bi-check-square text-success me-2"></i>
-                              Recent Todos
-                            </h5>
-                            <TodosModule compact={true} />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-6 mb-4">
-                        <div className="homeflow-card card h-100">
-                          <div className="card-body">
-                            <h5 className="card-title">
-                              <i className="bi bi-bell text-warning me-2"></i>
-                              Active Reminders
-                            </h5>
-                            <RemindersModule compact={true} />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-6 mb-4">
-                        <div className="homeflow-card card h-100">
-                          <div className="card-body">
-                            <h5 className="card-title">
-                              <i className="bi bi-wallet2 text-info me-2"></i>
-                              Budget Overview
-                            </h5>
-                            <BudgetModule compact={true} />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeModule === "reminders" && (
-                  <div>
-                    <RemindersModule />
-                  </div>
-                )}
-
-                {activeModule === "todos" && (
-                  <div>
-                    <TodosModule />
-                  </div>
-                )}
-
-                {activeModule === "budget" && (
-                  <div>
-                    <BudgetModule />
-                  </div>
-                )}
-              </div>
-
-              {/* Mobile content */}
-              <div className="p-3 d-mobile-only">
-                {activeModule === "overview" && (
-                  <div>
-                    <div className="homeflow-card card mb-3">
-                      <div className="card-body">
-                        <h6 className="card-title">
-                          <i className="bi bi-calendar3 text-primary me-2"></i>
-                          Calendar
-                        </h6>
-                        <CalendarEventsModule compact={true} />
-                      </div>
-                    </div>
-                    <div className="homeflow-card card mb-3">
-                      <div className="card-body">
-                        <h6 className="card-title">
-                          <i className="bi bi-check-square text-success me-2"></i>
-                          Recent Todos
-                        </h6>
-                        <TodosModule compact={true} />
-                      </div>
-                    </div>
-                    <div className="homeflow-card card mb-3">
-                      <div className="card-body">
-                        <h6 className="card-title">
-                          <i className="bi bi-bell text-warning me-2"></i>
-                          Active Reminders
-                        </h6>
-                        <RemindersModule compact={true} />
-                      </div>
-                    </div>
-                    <div className="homeflow-card card mb-3">
-                      <div className="card-body">
-                        <h6 className="card-title">
-                          <i className="bi bi-wallet2 text-info me-2"></i>
-                          Budget Overview
-                        </h6>
-                        <BudgetModule compact={true} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeModule === "reminders" && <RemindersModule />}
-                {activeModule === "todos" && <TodosModule />}
-                {activeModule === "budget" && <BudgetModule />}
-              </div>
+      <div className="dashboard-content">
+        {/* Left 1/3 - Navigation Modules */}
+        <div className="module-navigation">
+          <div className="navigation-content">
+            <div className="module-buttons">
+              <button
+                className={`module-btn ${activeModule === "overview" ? "active" : ""}`}
+                onClick={() => setActiveModule("overview")}
+              >
+                <i className="bi bi-house-door"></i>
+                <span>Overview</span>
+              </button>
+              <button
+                className={`module-btn ${activeModule === "reminders" ? "active" : ""}`}
+                onClick={() => setActiveModule("reminders")}
+              >
+                <i className="bi bi-bell"></i>
+                <span>Reminders</span>
+              </button>
+              <button
+                className={`module-btn ${activeModule === "todos" ? "active" : ""}`}
+                onClick={() => setActiveModule("todos")}
+              >
+                <i className="bi bi-check-square"></i>
+                <span>Todo Lists</span>
+              </button>
+              <button
+                className={`module-btn ${activeModule === "budget" ? "active" : ""}`}
+                onClick={() => setActiveModule("budget")}
+              >
+                <i className="bi bi-wallet2"></i>
+                <span>Budget</span>
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Right 2/3 - Content Area */}
+        <div className="module-content">
+          <div className="content-header">
+            <h2>{getModuleTitle()}</h2>
+          </div>
+          
+          <div className="content-body">
+            {activeModule === "overview" && (
+              <div className="overview-grid">
+                <div className="overview-card">
+                  <div className="card-header">
+                    <i className="bi bi-calendar3 text-primary me-2"></i>
+                    <h5>Calendar</h5>
+                  </div>
+                  <CalendarEventsModule compact={true} />
+                </div>
+                <div className="overview-card">
+                  <div className="card-header">
+                    <i className="bi bi-check-square text-success me-2"></i>
+                    <h5>Recent Todos</h5>
+                  </div>
+                  <TodosModule compact={true} />
+                </div>
+                <div className="overview-card">
+                  <div className="card-header">
+                    <i className="bi bi-bell text-warning me-2"></i>
+                    <h5>Active Reminders</h5>
+                  </div>
+                  <RemindersModule compact={true} />
+                </div>
+                <div className="overview-card">
+                  <div className="card-header">
+                    <i className="bi bi-wallet2 text-info me-2"></i>
+                    <h5>Budget Overview</h5>
+                  </div>
+                  <BudgetModule compact={true} />
+                </div>
+              </div>
+            )}
+
+            {activeModule === "reminders" && <RemindersModule />}
+            {activeModule === "todos" && <TodosModule />}
+            {activeModule === "budget" && <BudgetModule />}
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   )
 }
