@@ -34,7 +34,6 @@ export default function MobileSidebar({
 
   const menuItems = [
     { key: "overview", label: "Overview", icon: "bi-house-door" },
-    { key: "calendar", label: "Calendar", icon: "bi-calendar3" },
     { key: "reminders", label: "Reminders", icon: "bi-bell" },
     { key: "todos", label: "Todo Lists", icon: "bi-check-square" },
     { key: "budget", label: "Budget", icon: "bi-wallet2" },
