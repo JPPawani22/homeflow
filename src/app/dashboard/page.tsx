@@ -8,7 +8,25 @@ import RemindersModule from "@/components/reminders/RemindersModule"
 import TodosModule from "@/components/todos/TodosModule"
 import BudgetModule from "@/components/budget/BudgetModule"
 import CalendarEventsModule from "@/components/calendar/CalendarEventsModule"
-// import "./Dashboard.scss"
+
+// Import Font Awesome
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { 
+  faHouse, 
+  faBell, 
+  faSquareCheck, 
+  faWallet, 
+  faRightFromBracket,
+  faEnvelope,
+  faCalendar,
+  faUser,
+} from '@fortawesome/free-solid-svg-icons'
+import { 
+  faFacebookF, 
+  faTwitter, 
+  faInstagram, 
+  faLinkedinIn 
+} from '@fortawesome/free-brands-svg-icons'
 
 export default function Dashboard() {
   const [user, setUser] = useState<FirebaseUser | null>(null)
@@ -63,11 +81,11 @@ export default function Dashboard() {
       {/* Horizontal Header */}
       <header className="dashboard-header">
         <div className="header-content">
-          <h1 className="app-name">HomeFlow</h1>
+          <h1 className="app-name"><FontAwesomeIcon icon={faHouse} className="me" />HomeFlow</h1>
           <div className="header-right">
-            <span className="user-email"> {user.email}</span>
+            <span className="user-email"> <FontAwesomeIcon icon={faUser} className="me-2" />{user.email}</span>
             <button className="logout-btn" onClick={handleLogout}>
-              <i className="bi bi-box-arrow-right me-2"></i>
+              <FontAwesomeIcon icon={faRightFromBracket} className="me-2" />
               Logout
             </button>
           </div>
@@ -83,28 +101,28 @@ export default function Dashboard() {
                 className={`module-btn ${activeModule === "overview" ? "active" : ""}`}
                 onClick={() => setActiveModule("overview")}
               >
-                <i className="bi bi-house-door"></i>
+                <FontAwesomeIcon icon={faHouse} />
                 <span>Overview</span>
               </button>
               <button
                 className={`module-btn ${activeModule === "reminders" ? "active" : ""}`}
                 onClick={() => setActiveModule("reminders")}
               >
-                <i className="bi bi-bell"></i>
+                <FontAwesomeIcon icon={faBell} />
                 <span>Reminders</span>
               </button>
               <button
                 className={`module-btn ${activeModule === "todos" ? "active" : ""}`}
                 onClick={() => setActiveModule("todos")}
               >
-                <i className="bi bi-check-square"></i>
+                <FontAwesomeIcon icon={faSquareCheck} />
                 <span>Todo Lists</span>
               </button>
               <button
                 className={`module-btn ${activeModule === "budget" ? "active" : ""}`}
                 onClick={() => setActiveModule("budget")}
               >
-                <i className="bi bi-wallet2"></i>
+                <FontAwesomeIcon icon={faWallet} />
                 <span>Budget</span>
               </button>
             </div>
@@ -122,28 +140,14 @@ export default function Dashboard() {
               <div className="overview-grid">
                 <div className="overview-card">
                   <div className="card-header">
-                    <i className="bi bi-calendar3 text-primary me-2"></i>
+                    <FontAwesomeIcon icon={faCalendar} className="text-primary me-2" />
                     <h5>Calendar</h5>
                   </div>
                   <CalendarEventsModule compact={true} />
                 </div>
                 <div className="overview-card">
                   <div className="card-header">
-                    <i className="bi bi-check-square text-success me-2"></i>
-                    <h5>Recent Todos</h5>
-                  </div>
-                  <TodosModule compact={true} />
-                </div>
-                <div className="overview-card">
-                  <div className="card-header">
-                    <i className="bi bi-bell text-warning me-2"></i>
-                    <h5>Active Reminders</h5>
-                  </div>
-                  <RemindersModule compact={true} />
-                </div>
-                <div className="overview-card">
-                  <div className="card-header">
-                    <i className="bi bi-wallet2 text-info me-2"></i>
+                    <FontAwesomeIcon icon={faWallet} className="text-info me-2" />
                     <h5>Budget Overview</h5>
                   </div>
                   <BudgetModule compact={true} />
@@ -157,6 +161,36 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="dashboard-footer">
+        <div className="footer-content">
+          <div className="footer-left">
+            <p className="copyright">
+              © {new Date().getFullYear()} HomeFlow. All rights reserved. @ladybug ❤️
+            </p>
+          </div>
+          <div className="footer-right">
+            <div className="social-links">
+              <a href="#" className="social-link" aria-label="Facebook">
+                <FontAwesomeIcon icon={faFacebookF} />
+              </a>
+              <a href="#" className="social-link" aria-label="Twitter">
+                <FontAwesomeIcon icon={faTwitter} />
+              </a>
+              <a href="#" className="social-link" aria-label="Instagram">
+                <FontAwesomeIcon icon={faInstagram} />
+              </a>
+              <a href="#" className="social-link" aria-label="LinkedIn">
+                <FontAwesomeIcon icon={faLinkedinIn} />
+              </a>
+              <a href="#" className="social-link" aria-label="Contact Us">
+                <FontAwesomeIcon icon={faEnvelope} />
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

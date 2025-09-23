@@ -3,10 +3,10 @@
 @import "~bootstrap/scss/variables";
 
 // Custom color variables
-$primary: #b663f1;
-$primary-gradient: linear-gradient(135deg, #672594 10%, #2094be 100%);
-$secondary: #2094be;
-$secondary-gradient: linear-gradient(135deg, #b663f1 10%, #12779c 100%);
+$primary: #10ad7e;
+$primary-gradient: linear-gradient(135deg, #177e6b 10%, #2094be 100%);
+$secondary: #30bcef;
+$secondary-gradient: linear-gradient(135deg, #35cad7 10%, #12779c 100%);
 $success: #10b981;
 $info: #0f235780;
 $warning: #f59e0b;
@@ -43,6 +43,50 @@ $theme-colors: (
 // Import Bootstrap
 @import "~bootstrap/scss/bootstrap";
 
+
+// Font Awesome icon adjustments
+.module-btn {
+  .svg-inline--fa {
+    font-size: 1.25rem;
+    width: 24px;
+  }
+}
+
+.social-link {
+  .svg-inline--fa {
+    font-size: 0.9rem;
+  }
+}
+
+// Additional icon styles for header
+.logout-btn {
+  .svg-inline--fa {
+    font-size: 0.9rem;
+  }
+}
+
+// Card header icons
+.card-header {
+  .svg-inline--fa {
+    font-size: 1.25rem;
+  }
+}
+
+// Responsive adjustments for icons
+@media (max-width: 768px) {
+  .module-btn {
+    .svg-inline--fa {
+      font-size: 1.1rem;
+    }
+  }
+  
+  .social-link {
+    .svg-inline--fa {
+      font-size: 0.8rem;
+    }
+  }
+}
+
 // Dashboard container
 .dashboard-container {
   height: 100vh;
@@ -53,7 +97,7 @@ $theme-colors: (
 
 // Header styles
 .dashboard-header {
-  background: linear-gradient(135deg, #682594b1 10%, #2094beef 100%);
+  background: linear-gradient(135deg, #670167b1 10%, #d45ff8ef 100%);
   color: white;
   padding: 0.75rem 1.5rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -72,7 +116,6 @@ $theme-colors: (
     letter-spacing: 2px;
     font-size: 2.5rem;
     font-weight: bold;
-    color: $dark;
     margin: 0;
   }
 
@@ -107,7 +150,7 @@ $theme-colors: (
 // Main content area
 .dashboard-content {
   display: flex;
-  flex: 1;
+  flex: 2;
   overflow: hidden;
 }
 
@@ -178,15 +221,15 @@ $theme-colors: (
 
     // Different colors for each module button
     &:nth-child(1) {
-      background: rgba(182, 99, 241, 0.2);
+      background: rgba(182, 99, 241, 0.5);
       
       &.active {
-        background: rgba(182, 99, 241, 0.7);
+        background: rgba(146, 44, 218, 0.7);
       }
     }
     
     &:nth-child(2) {
-      background: rgba(245, 158, 11, 0.2);
+      background: rgba(245, 158, 11, 0.5);
       
       &.active {
         background: rgba(245, 159, 11, 0.7);
@@ -194,18 +237,18 @@ $theme-colors: (
     }
     
     &:nth-child(3) {
-      background: rgba(16, 185, 129, 0.2);
+      background: rgba(16, 137, 185, 0.5);
       
       &.active {
-        background: rgba(16, 185, 129, 0.7);
+        background: rgba(13, 132, 191, 0.7);
       }
     }
     
     &:nth-child(4) {
-      background: rgba(14, 165, 233, 0.2);
+      background: rgba(13, 144, 123, 0.5);
       
       &.active {
-        background: rgba(14, 165, 233, 0.7);
+        background: rgba(13, 168, 99, 0.7);
       }
     }
   }
@@ -214,13 +257,15 @@ $theme-colors: (
 // Overview grid layout
 .overview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 2fr));
-  gap: 1.5rem;
-  height: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+  gap: 2.5rem;
+  height: 50%;
+  bottom: 5rem;
+  padding-bottom: 5rem;
 }
 
 .overview-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.7);
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   padding: 1.25rem;
@@ -252,6 +297,7 @@ $theme-colors: (
   align-items: center;
   background: $gray-gradient;
 }
+
 
 // Responsive design
 @media (max-width: 992px) {
@@ -387,15 +433,15 @@ $theme-colors: (
 
 /* Three-panel layout specific styles */
 .module-navigation {
-  background: linear-gradient(135deg, #672594 10%, #2094be 100%);
-  width: 25vw;
+  background: linear-gradient(to top, #f9e6fd 1%, #ffffff 100%);
+  width: 20vw;
   display: flex;
   flex-direction: column;
   padding: 2rem;
 }
 
 .module-content {
-  background: linear-gradient(to top, #e0f9ff 1%, #ffffff 100%);
+  background: linear-gradient(to top, #f9e6fd 1%, #ffffff 100%);
   width: 80vw;
   overflow: auto;
   padding: 2rem;
@@ -425,65 +471,6 @@ $theme-colors: (
   }
 }
 
-// Remaining styles from your original SCSS
-.sidebar {
-  background: linear-gradient(135deg, #672594 10%, #2094be 100%);
-  min-height: 100vh;
-  position: relative;
-}
-
-.sidebar .nav-link {
-  padding: 0.75rem 1rem;
-  transition: all 0.3s ease;
-  border: 1px solid transparent;
-  margin-bottom: 0.5rem;
-  border-radius: 50px !important;
-}
-
-.sidebar .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
-  transform: translateX(5px);
-}
-
-.sidebar .nav-link.active {
-  background: $secondary-gradient;
-  color: #ffffff !important;
-  font-weight: 600;
-  border-color: rgba(255, 255, 255, 0.3) !important;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.sidebar .nav-link i {
-  transition: all 0.3s ease;
-}
-
-.sidebar .nav-link:hover i {
-  background-color: $secondary-gradient;
-}
-
-.sidebar .btn-outline-light {
-  transition: all 0.3s ease;
-  border-radius: 50px;
-  border-width: 2px;
-  padding: 0.5rem 1rem;
-}
-
-.sidebar .btn-outline-light:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.sidebar .fw-bold {
-  color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.sidebar .opacity-75 {
-  opacity: 0.85;
-}
 
 /* Animation for active nav item */
 @keyframes navItemActive {
@@ -691,7 +678,6 @@ $theme-colors: (
   color: white;
   text-align: center;
   font-weight: 600;
-  // border-radius: 8px 8px 0 0;
   margin: -4px -4px 4px -4px;
   
   div {
@@ -1111,6 +1097,104 @@ $theme-colors: (
     
     .add-reminder-btn {
       display: none;
+    }
+  }
+}
+
+// Dashboard Footer Styles
+.dashboard-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: rgba(140, 128, 149, 0.5); // Primary color with opacity
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 1000;
+  
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 100%;
+    font-size: 2rem;
+    
+    .footer-left {
+      .copyright {
+        margin: 0;
+        font-size: 0.9rem;
+        color: rgba(0, 0, 0, 0.7);
+        font-weight: 500;
+      }
+    }
+    
+    .footer-right {
+      .social-links {
+        display: flex;
+        gap: 1rem;
+        
+        .social-link {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.5);
+          color: rgba(0, 0, 0, 0.7);
+          transition: all 0.3s ease;
+          
+          &:hover {
+            background: rgba(82, 87, 248, 0.5);
+            transform: translateY(-2px);
+            color: #000;
+          }
+          
+          i {
+            font-size: 1.5rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .dashboard-footer {
+    padding: 0.75rem 1rem;
+    
+    .footer-content {
+      flex-direction: column;
+      gap: 0.5rem;
+      text-align: center;
+      
+      .footer-left {
+        order: 2;
+        
+        .copyright {
+          font-size: 0.8rem;
+        }
+      }
+      
+      .footer-right {
+        order: 1;
+        
+        .social-links {
+          justify-content: center;
+          gap: 0.75rem;
+          
+          .social-link {
+            width: 28px;
+            height: 28px;
+            
+            i {
+              font-size: 0.8rem;
+            }
+          }
+        }
+      }
     }
   }
 }
