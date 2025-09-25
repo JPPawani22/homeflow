@@ -17,7 +17,7 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
   const [formData, setFormData] = useState<CreateReminderDTO>({
     title: "",
     description: "",
-    reminder_date: "",
+    reminder_date: new Date().toISOString().slice(0, 16), // Set current date/time as default
     priority: "medium",
     reminder_type: "reminder",
   })
@@ -150,7 +150,7 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
     setFormData({
       title: "",
       description: "",
-      reminder_date: "",
+      reminder_date: new Date().toISOString().slice(0, 16), // Reset to current date/time
       priority: "medium",
       reminder_type: "reminder",
     })
@@ -168,17 +168,23 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
     })
   }
 
-  // Sort reminders with completed ones at the end, then by date
-  const sortedReminders = [...reminders].sort((a, b) => {
-    if (a.is_completed && !b.is_completed) return 1
-    if (!a.is_completed && b.is_completed) return -1
+  // Separate completed and active reminders
+  const activeReminders = reminders.filter(r => !r.is_completed)
+  const completedReminders = reminders.filter(r => r.is_completed)
+
+  // Sort active reminders by priority and date
+  const sortedActiveReminders = [...activeReminders].sort((a, b) => {
+    const priorityOrder = { high: 1, medium: 2, low: 3 }
+    if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+      return priorityOrder[a.priority] - priorityOrder[b.priority]
+    }
     return new Date(a.reminder_date).getTime() - new Date(b.reminder_date).getTime()
   })
 
-  // Filter reminders by priority
-  const highPriority = sortedReminders.filter(r => r.priority === "high" && !r.is_completed)
-  const mediumPriority = sortedReminders.filter(r => r.priority === "medium" && !r.is_completed)
-  const lowPriority = sortedReminders.filter(r => r.priority === "low" && !r.is_completed)
+  // Filter active reminders by priority
+  const highPriority = sortedActiveReminders.filter(r => r.priority === "high")
+  const mediumPriority = sortedActiveReminders.filter(r => r.priority === "medium")
+  const lowPriority = sortedActiveReminders.filter(r => r.priority === "low")
 
   if (loading) {
     return (
@@ -194,6 +200,19 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
     <div className={`reminders-module ${compact ? "compact-view" : ""}`}>
       {!compact && (
         <div className="reminders-layout">
+          {/* Floating Add Button */}
+          <motion.button
+            className="floating-add-btn btn btn-primary"
+            onClick={() => setShowForm(true)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <i className="bi bi-plus-circle"></i> Add Reminder
+          </motion.button>
+
           <div className="reminders-column">
             <motion.div 
               className="priority-section"
@@ -277,120 +296,59 @@ export default function RemindersModule({ compact = false }: RemindersModuleProp
             </motion.div>
           </div>
 
-          <div className="reminders-column">
+          {/* Previous Reminders Card */}
+          {completedReminders.length > 0 && (
             <motion.div 
-              className="reminder-list-container"
+              className="previous-reminders-card card"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.3 }}
             >
-              <div className="d-flex justify-content-between align-items-center mb-3">
+              <div className="card-header">
                 <h4 className="section-title">
-                  <i className="bi bi-list-check"></i> All Reminders
+                  <i className="bi bi-check-circle-fill"></i> Previous Reminders
                 </h4>
-                <motion.button
-                  className="add-reminder-btn btn btn-primary btn-sm"
-                  onClick={() => setShowForm(true)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <i className="bi bi-plus-circle"></i> Add
-                </motion.button>
               </div>
-
-              {sortedReminders.length === 0 ? (
-                <motion.div 
-                  className="empty-state"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <i className="bi bi-bell"></i>
-                  <h5>No reminders yet</h5>
-                  <p>Add your first reminder to get started</p>
-                </motion.div>
-              ) : (
-                <div className="reminder-list">
-                  <AnimatePresence>
-                    {sortedReminders
-                      .filter(reminder => compact ? !reminder.is_completed : true)
-                      .slice(0, compact ? 3 : undefined)
-                      .map((reminder, index) => (
-                        <motion.div
-                          key={reminder.id}
-                          className={`reminder-item priority-${reminder.priority} ${reminder.is_completed ? 'completed-reminder' : ''}`}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, x: -20 }}
-                          transition={{ duration: 0.2, delay: index * 0.05 }}
-                          layout
-                        >
-                          <div className="reminder-header">
-                            <div className="d-flex align-items-center">
-                              <input
-                                type="checkbox"
-                                className="form-check-input me-2"
-                                checked={reminder.is_completed}
-                                onChange={() => toggleComplete(reminder)}
-                              />
-                              <h5 className="reminder-title mb-0">{reminder.title}</h5>
-                            </div>
-                            <span className={`priority-badge ${reminder.priority}`}>
-                              {reminder.priority}
-                            </span>
-                          </div>
-                          
-                          {reminder.description && (
-                            <div className="reminder-body">
-                              {reminder.description}
-                            </div>
-                          )}
-                          
-                          <div className="reminder-footer">
-                            <div className="reminder-date">
-                              <i className="bi bi-calendar3"></i>
-                              {formatDate(reminder.reminder_date)}
-                            </div>
-                            <div className="reminder-actions">
-                              <motion.button
-                                className="btn btn-outline-secondary btn-sm me-1"
-                                onClick={() => handleEdit(reminder)}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                              >
-                                <i className="bi bi-pencil"></i>
-                              </motion.button>
-                              <motion.button
-                                className="btn btn-outline-danger btn-sm"
-                                onClick={() => deleteReminder(reminder.id)}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                              >
-                                <i className="bi bi-trash"></i>
-                              </motion.button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                  </AnimatePresence>
+              <div className="card-body">
+                <div className="previous-reminders-list">
+                  {completedReminders.map((reminder, index) => (
+                    <motion.div
+                      key={reminder.id}
+                      className="previous-reminder-item"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2, delay: index * 0.05 }}
+                    >
+                      <div className="d-flex justify-content-between align-items-center">
+                        <div className="d-flex align-items-center">
+                          <i className="bi bi-check-circle text-success me-2"></i>
+                          <span className="previous-reminder-title text-muted text-decoration-line-through">
+                            {reminder.title}
+                          </span>
+                        </div>
+                        <div className="previous-reminder-date text-muted small">
+                          {formatDate(reminder.reminder_date)}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-              )}
+              </div>
             </motion.div>
-          </div>
+          )}
         </div>
       )}
 
       {compact && (
         <div className="reminder-list-container">
-          {sortedReminders.length === 0 ? (
+          {sortedActiveReminders.length === 0 ? (
             <div className="empty-state">
               <i className="bi bi-bell"></i>
               <h5>No reminders yet</h5>
             </div>
           ) : (
             <div className="reminder-list">
-              {sortedReminders
-                .filter(reminder => !reminder.is_completed)
+              {sortedActiveReminders
                 .slice(0, 3)
                 .map((reminder) => (
                   <div
